@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}My Doses{% endblock %}
+{% block content %}
+<h1 class="title">My Doses</h1>
+<a class="button is-primary" href="{% url 'dose_add' %}">Add Dose</a>
+<table class="table is-fullwidth is-striped mt-4">
+  <thead>
+    <tr>
+      <th><a href="{{ links.date }}">Date{% if sort == 'date' %} {% if direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}</a></th>
+      <th><a href="{{ links.vaccine }}">Vaccine{% if sort == 'vaccine' %} {% if direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}</a></th>
+      <th><a href="{{ links.dose }}">Dose #{% if sort == 'dose' %} {% if direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}</a></th>
+      <th>Appointment</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for d in doses %}
+    <tr>
+      <td>{{ d.date_administered|date:'Y-m-d' }}</td>
+      <td>{{ d.vaccine.name }}</td>
+      <td>{{ d.dose_number }}</td>
+      <td>{% if d.appointment %}{{ d.appointment.datetime|date:'Y-m-d H:i' }}{% else %}-{% endif %}</td>
+      <td><a class="button is-small is-danger" href="{% url 'dose_delete' d.pk %}">Delete</a></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">No doses recorded yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

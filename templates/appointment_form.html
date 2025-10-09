@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Appointment{% endblock %}
+{% block content %}
+<h1 class="title">{% if appointment %}Edit{% else %}Add{% endif %} Appointment</h1>
+<form method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <button class="button is-primary">Save</button>
+  <a class="button" href="{% url 'home' %}">Cancel</a>
+</form>
+{% endblock %}

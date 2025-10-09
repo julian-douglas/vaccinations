@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Delete Appointment{% endblock %}
+{% block content %}
+<h1 class="title">Delete Appointment</h1>
+<p>Are you sure you want to delete the appointment for <strong>{{ appointment.vaccine.name }}</strong> on <strong>{{ appointment.datetime|date:'Y-m-d H:i' }}</strong>?</p>
+<form method="post">{% csrf_token %}
+  <button class="button is-danger">Confirm Delete</button>
+  <a class="button" href="{% url 'home' %}">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Home - Vaccinations{% endblock %}
+{% block content %}
+<h1 class="title">Dashboard</h1>
+{% if user.is_authenticated %}
+  <h2 class="subtitle">Your Appointments</h2>
+  {% if appointments %}
+    <table class="table is-fullwidth is-striped">
+      <thead><tr><th>Date/Time</th><th>Vaccine</th><th>Branch</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for a in appointments %}
+        <tr>
+          <td>{{ a.datetime|date:'Y-m-d H:i' }}</td>
+          <td>{{ a.vaccine.name }}</td>
+          <td>{{ a.branch.name }}</td>
+          <td>{{ a.get_status_display }}</td>
+          <td>
+            <a class="button is-small" href="{% url 'appointment_edit' a.pk %}">Edit</a>
+            <a class="button is-small is-danger" href="{% url 'appointment_delete' a.pk %}">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No appointments yet. <a href="{% url 'appointment_add' %}">Book one</a>.</p>
+  {% endif %}
+{% else %}
+  <p>Please <a href="{% url 'login' %}">login</a> to manage appointments.</p>
+{% endif %}
+
+<!-- <h2 class="subtitle">Vaccines (sample)</h2>
+<ul>
+  {% for v in vaccines %}<li>{{ v.name }} - £{{ v.price_per_dose }}</li>{% endfor %}
+</ul>
+
+<h2 class="subtitle">Branches (sample)</h2>
+<ul>
+  {% for b in branches %}<li>{{ b.name }} ({{ b.postcode }})</li>{% endfor %}
+</ul> -->
+{% endblock %}

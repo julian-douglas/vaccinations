@@ -1,0 +1,39 @@
+# POST http://127.0.0.1:8000/users
+# Content-Type: application/json
+
+# {
+#     "name": "Julian Douglas",
+#     "dob": "1996-06-14",
+#     "medical_id": "6010786037",
+#     "email": "jualdouglas@gmail.com",
+#     "phone": "07518 947242",
+#     "address": "Wold View, Main Street, Low Catton, York",
+#     "postcode": "YO41 1EA"
+# }
+
+
+# GET http://localhost:8000/vaccines
+
+# POST http://127.0.0.1:8000/doses
+# Content-Type: application/json
+
+# {
+#     "vaccine_id": 18,
+#     "user_id": 1,
+#     "date_administered": "2024-10-01",
+#     "dose_number": 1,
+#     "appointment_id": 3
+# }
+
+POST http://127.0.0.1:8000/appointments
+Content-Type: application/json
+
+{
+  "date": "2025-10-20",
+  "time": "10:55:00",
+  "user_id": 1,
+  "vaccine_id": 20,
+  "branch_id": 4,
+  "status": "scheduled",
+  "notes": "string"
+}

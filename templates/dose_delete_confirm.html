@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Delete Dose{% endblock %}
+{% block content %}
+<h1 class="title">Delete Dose</h1>
+<p>Are you sure you want to delete dose {{ dose.dose_number }} of {{ dose.vaccine.name }} ({{ dose.date_administered|date:'Y-m-d' }})?</p>
+<form method="post">{% csrf_token %}
+  <button class="button is-danger">Confirm Delete</button>
+  <a class="button" href="{% url 'dose_list' %}">Cancel</a>
+</form>
+{% endblock %}

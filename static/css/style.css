@@ -1,0 +1,89 @@
+.branch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 300px); /* 3 fixed-width columns */
+  gap: 2rem;
+  justify-content: center;  /* center the 3-column block */
+  padding: 0.5rem 0;
+  align-items: stretch; /* ensure cards stretch equal height */
+}
+
+@media (max-width: 1200px) {
+  .branch-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1000px) {
+  .branch-grid {
+    grid-template-columns: repeat(2, 300px);
+  }
+}
+@media (max-width: 760px) {
+  .branch-grid {
+    grid-template-columns: 1fr;
+    justify-content: center;
+  }
+}
+.branch-card {
+  width: 300px;             /* match column width */
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 6px 18px -6px rgba(0,0,0,.15);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.branch-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px -8px rgba(0,0,0,.25);
+}
+.branch-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.branch-card .content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.95rem 1.05rem 1.1rem;
+}
+.branch-card .branch-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-bottom: .4rem;
+}
+.branch-card .branch-address {
+  font-size: .85rem;
+  line-height: 1.15rem;
+}
+.branch-card .branch-open {
+  margin-top: auto;              /* pushes this block to bottom */
+  padding-top: 1rem;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .2px;
+  color: #222;
+}
+.branch-card .open-until {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 500;
+  font-size: .85rem;
+  color: #222;
+}
+.open-until.status-open { color: #138c2e; }
+.open-until.status-closing { color: #d98200; }
+.open-until.status-closed { color: #c62828; }
+
+@media (max-width: 680px) {
+  .branch-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+  .branch-card {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+}

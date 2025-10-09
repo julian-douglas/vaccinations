@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Vaccinations{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="{% static 'css/branches.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <nav class="navbar is-primary" role="navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">Vaccinations</a>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                {% if user.is_authenticated %}
+                <a class="navbar-item" href="{% url 'appointment_add' %}">Add Appointment</a>
+                <a class="navbar-item" href="{% url 'dose_list' %}">My Doses</a>
+                <a class="navbar-item" href="{% url 'home' %}">My profile</a>
+                <a class="navbar-item" href="{% url 'branch_list' %}">Find a branch</a>
+                {% endif %}
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button
+                            class="button is-light">Logout ({{ user.username }})</button></form>
+                    {% else %}
+                    <div class="buttons">
+                        <a class="button is-light" href="{% url 'login' %}">Login</a>
+                        <a class="button is-warning" href="{% url 'signup' %}">Sign Up</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    <section class="section">
+        <div class="container">
+            {% for message in messages %}
+            <div class="notification is-info">{{ message }}</div>
+            {% endfor %}
+            {% block content %}{% endblock %}
+        </div>
+    </section>
+</body>
+
+</html>

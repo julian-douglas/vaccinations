@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Add Dose{% endblock %}
+{% block content %}
+<h1 class="title">Add Dose</h1>
+<form method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <button class="button is-primary">Save</button>
+  <a class="button" href="{% url 'dose_list' %}">Cancel</a>
+</form>
+{% endblock %}
