@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from datetime import datetime, timedelta
 from django.utils import timezone
 import re
+import json
 
 User = get_user_model()
 
@@ -167,6 +168,72 @@ class Branch(models.Model):
 
         return {"text": "Closed", "class": "status-closed"}
 
+    def get_opening_hours_display(self):
+        """Process opening hours data for display"""
+        if not self.opening_hours:
+            return []
+        
+        try:
+            hours_data = json.loads(self.opening_hours) if isinstance(self.opening_hours, str) else self.opening_hours
+        except (json.JSONDecodeError, TypeError):
+            return []
+        
+        processed_hours = []
+        for hour_block in hours_data:
+            days = hour_block.get('days', '')
+            open_time = hour_block.get('open', '')
+            close_time = hour_block.get('close', '')
+            
+            if open_time and close_time:
+                processed_hours.append({
+                    'days': days,
+                    'open': open_time,
+                    'close': close_time,
+                    'is_current': self.is_current_day_period(days)
+                })
+        
+        return processed_hours
+    
+    def is_current_day_period(self, days_string):
+        """Check if current day falls within the given days string"""
+        current_day = datetime.now().strftime('%a')  # Mon, Tue, Wed, etc.
+        days_lower = days_string.lower()
+        
+        day_mappings = {
+            'monday': 'mon', 'tuesday': 'tue', 'wednesday': 'wed', 
+            'thursday': 'thu', 'friday': 'fri', 'saturday': 'sat', 'sunday': 'sun'
+        }
+        
+        current_day_short = current_day.lower()[:3]
+        
+        # Handle ranges like "Mon-Fri"
+        if '-' in days_lower:
+            start_day, end_day = days_lower.split('-')
+            start_day = start_day.strip()[:3]
+            end_day = end_day.strip()[:3]
+            
+            day_order = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+            try:
+                start_idx = day_order.index(start_day)
+                end_idx = day_order.index(end_day)
+                current_idx = day_order.index(current_day_short)
+                
+                if start_idx <= end_idx:
+                    return start_idx <= current_idx <= end_idx
+                else:  # Wraps around week (e.g., Sat-Mon)
+                    return current_idx >= start_idx or current_idx <= end_idx
+            except ValueError:
+                pass
+        
+        # Handle specific days like "Sat", "Sun", or "Sat-Sun"
+        return current_day_short in days_lower
+    
+    def get_formatted_address(self):
+        """Return address with commas replaced by line breaks"""
+        if not self.address:
+            return ""
+        return self.address.replace(", ", "<br>")
+    
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ("scheduled", "Scheduled"),

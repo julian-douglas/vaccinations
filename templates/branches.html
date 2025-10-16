@@ -6,33 +6,35 @@
 
 <div class="branch-grid">
   {% for b in branches %}
-  <div class="branch-card">
-    <div class="image-wrapper">
-      {% if b.image_url %}
-        {% if b.image_url|slice:':4' == 'http' %}
-          <img src="{{ b.image_url }}" alt="{{ b.name }}">
-        {% else %}
-          <img src="{% static b.image_url %}" alt="{{ b.name }}">
-        {% endif %}
-      {% else %}
-        <img src="{% static 'img/branches/placeholder.jpg' %}" alt="{{ b.name }}">
-      {% endif %}
-    </div>
-    <div class="content">
-      <div class="branch-name">{{ b.name }}</div>
-      <div class="branch-address">
-        {{ b.address }}<br>{{ b.postcode }}
-      </div>
-
-      <div class="branch-open">
-        {% with info=b.status_info %}
-          {% if info %}
-            <span class="open-until {{ info.class }}">{{ info.text }}</span>
+  <a href="{% url 'branch_detail' pk=b.id %}" class="branch-card-link">
+    <div class="branch-card">
+      <div class="image-wrapper">
+        {% if b.image_url %}
+          {% if b.image_url|slice:':4' == 'http' %}
+            <img src="{{ b.image_url }}" alt="{{ b.name }}">
+          {% else %}
+            <img src="{% static b.image_url %}" alt="{{ b.name }}">
           {% endif %}
-        {% endwith %}
+        {% else %}
+          <img src="{% static 'img/branches/placeholder.jpg' %}" alt="{{ b.name }}">
+        {% endif %}
+      </div>
+      <div class="content">
+        <div class="branch-name">{{ b.name }}</div>
+        <div class="branch-address">
+          {{ b.address }}<br>{{ b.postcode }}
+        </div>
+
+        <div class="branch-open">
+          {% with info=b.status_info %}
+            {% if info %}
+              <span class="open-until {{ info.class }}">{{ info.text }}</span>
+            {% endif %}
+          {% endwith %}
+        </div>
       </div>
     </div>
-  </div>
+  </a>
   {% empty %}
     <p>No branches found.</p>
   {% endfor %}

@@ -1,0 +1,72 @@
+### Django REST API Testing
+### Replace the old FastAPI with Django REST Framework
+
+### Health Check
+GET http://127.0.0.1:8000/api/health/
+
+### Get all branches (previously missing in FastAPI)
+GET http://127.0.0.1:8000/api/branches/
+
+### Get specific branch
+GET http://127.0.0.1:8000/api/branches/1/
+
+### Get all vaccines
+GET http://127.0.0.1:8000/api/vaccines/
+
+### Get specific vaccine
+GET http://127.0.0.1:8000/api/vaccines/1/
+
+### Get all users
+GET http://127.0.0.1:8000/api/users/
+
+### Create a new user
+POST http://127.0.0.1:8000/api/users/
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "first_name": "Test",
+    "last_name": "User",
+    "password": "testpass123"
+}
+
+### Get all appointments
+GET http://127.0.0.1:8000/api/appointments/
+
+### Create an appointment
+POST http://127.0.0.1:8000/api/appointments/
+Content-Type: application/json
+
+{
+    "user": 1,
+    "vaccine": 1,
+    "branch": 1,
+    "datetime": "2025-10-20T10:00:00Z",
+    "notes": "Regular appointment"
+}
+
+### Get all doses
+GET http://127.0.0.1:8000/api/doses/
+
+### Create a dose record
+POST http://127.0.0.1:8000/api/doses/
+Content-Type: application/json
+
+{
+    "vaccine": 1,
+    "user": 1,
+    "date_administered": "2025-10-14",
+    "dose_number": 1
+}
+
+### Update an appointment
+PATCH http://127.0.0.1:8000/api/appointments/1/
+Content-Type: application/json
+
+{
+    "status": "completed"
+}
+
+### Delete an appointment
+DELETE http://127.0.0.1:8000/api/appointments/1/

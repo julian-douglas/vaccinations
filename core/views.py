@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Max
-from .models import Appointment, Vaccine, Branch, Dose
+from .models import Appointment, Vaccine, Branch, Dose, User
 from .forms import AppointmentForm, CustomUserCreationForm, DoseForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
@@ -147,3 +147,7 @@ def branch_list(request):
             'links': links,
         }
     )
+
+def branch_detail(request, pk):
+    branch = get_object_or_404(Branch, pk=pk)
+    return render(request, 'branch.html', {'branch': branch})

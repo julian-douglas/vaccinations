@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ branch.name }}{% endblock %}
+
+{% block extra_css %}
+
+<style>
+    .branch-detail .branch-info {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 40px !important;
+        align-items: stretch !important;
+    }
+
+    .branch-detail .branch-text {
+        flex: 1 1 35% !important;
+        /* was 2 -> make half */
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 30px !important;
+    }
+
+    .branch-detail .branch-image {
+        flex: 1 1 65% !important;
+        /* make half */
+        max-width: 65% !important;
+        /* remove 90%, force half */
+        aspect-ratio: 4 / 3;
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        background: #f3f3f3;
+    }
+
+    .branch-detail .branch-image img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* or contain */
+        margin: 0;
+    }
+
+    .hours-item.current-day {
+        font-weight: bold !important;
+        background: #e3f2fd !important;
+        padding: 8px 12px !important;
+        margin: 0 -12px !important;
+        border-radius: 4px !important;
+    }
+
+    .always-open {
+        font-weight: bold !important;
+        color: #28a745 !important;
+        font-size: 1.1em !important;
+    }
+
+    @media (max-width: 900px) {
+        .branch-detail .branch-info {
+            flex-direction: column !important;
+        }
+
+        .branch-detail .branch-image,
+        .branch-detail .branch-text {
+            max-width: 100% !important;
+            flex: 1 1 100% !important;
+        }
+    }
+
+    .branch-appointment .button.is-primary {
+        padding: 23px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="branch-detail">
+    <br>
+    <a href="{% url 'branch_list' %}" class="button is-primary">← Back to all branches</a>
+    <br>
+    <div class="branch-info">
+        <div class="branch-text">
+            <div class="branch-header">
+                <br>
+                <h1 class="title">{{ branch.name }}</h1>
+            </div>
+            <!-- Block 1: Contact Info -->
+            <div class="branch-hours">
+                <div class="contact-item">
+                    <h3>Address</h3>
+                    {{ branch.get_formatted_address|safe }}
+                    <br>{{ branch.postcode }}
+                </div>
+            </div>
+
+            <div class="branch-hours">
+                {% if branch.phone %}
+                <div class="contact-item">
+                    <h3>Phone</h3>
+                    {{ branch.phone }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Block 2: Opening Hours -->
+            <div class="branch-hours">
+                <h3>Opening Times</h3>
+                {% if branch.is_24_7 %}
+                <div class="always-open">Always open</div>
+                {% else %}
+                <div class="hours-list">
+                    {% for hours in branch.get_opening_hours_display %}
+                    <div class="hours-item {% if hours.is_current %}current-day{% endif %}">
+                        <span class="day">{{ hours.days }}</span>
+                        <span class="time">{{ hours.open }} - {{ hours.close }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="hours-item">
+                        <span class="day">Hours</span>
+                        <span class="time">Please call for details</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Block 3: Appointment Link -->
+            <div class="branch-appointment">
+                <a href="{% url 'appointment_add' %}?branch={{ branch.id }}" class="button is-primary">
+                    Book Appointment
+                </a>
+            </div>
+        </div>
+
+        <div class="branch-image">
+            {% if branch.image_url %}
+            {% if branch.image_url|slice:':4' == 'http' %}
+            <img src="{{ branch.image_url }}" alt="{{ branch.name }}">
+            {% else %}
+            <img src="{% static branch.image_url %}" alt="{{ branch.name }}">
+            {% endif %}
+            {% else %}
+            <img src="{% static 'img/branches/placeholder.jpg' %}" alt="{{ branch.name }}">
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script>
+    document.querySelectorAll('.branch-image img').forEach(i => {
+        console.log(i.src, i.naturalWidth, i.naturalHeight);
+    });
+</script>

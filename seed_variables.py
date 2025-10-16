@@ -378,22 +378,22 @@ seed_branches = [
         "opening_hours": [
             {"days": "Mon-Sun", "open": "22:00", "close": "06:00"} 
         ],
-        "image_url": "img/branches/westclocktown.jpg"
+        "image_url": "img/branches/clock_town.png"
     },
     {
         "name": "Kakariko Village Health Post",
-        "address": "Beneath The Well, Kakariko Village, Hyrule",
+        "address": "15 Volcano Blvd., Kakariko Village, Hyrule",
         "postcode": "KV 45012",
         "phone": "01743 776217",
         "email": "admin@kakarikohealth.hy",
         "opening_hours": [
             {"days": "Sun-Thu", "open": "09:00", "close": "18:00"},
         ],
-        "image_url": "img/branches/beneaththewell.jpg"
+        "image_url": "img/branches/kakariko_village.jpg"
     },
     {
         "name": "Garo's Apothecary",
-        "address": "Stone Tower Atrium, Ikana Canyon, Termina",
+        "address": "1 Stone Tower Atrium, Ikana Canyon, Termina",
         "postcode": "IK 23901",
         "phone": "01904 429767",
         "email": "undeadcare@ikanapharma.tm",
@@ -414,7 +414,7 @@ seed_branches = [
             {"days": "Mon-Fri", "open": "09:00", "close": "20:00"},
             {"days": "Sat-Sun", "open": "10:00", "close": "18:00"},
         ],
-        "image_url": "img/branches/backalley.jpg"
+        "image_url": "img/branches/hyrule_castle_town.jpg"
     },
     {
         "name": "Cherrygrove City Pokémon Center",
@@ -430,7 +430,7 @@ seed_branches = [
     {
         "name": "Skyport Health Pokémon Center",
         "address": "Unit 18, Liberty Pier, Castelia City, Unova",
-        "postcode": "UN 56283",
+        "postcode": "CS 56283",
         "phone": "01876 298312",
         "email": "nursejoy@skyporthealth.un",
         "opening_hours": [

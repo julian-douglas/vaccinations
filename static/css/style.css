@@ -33,9 +33,27 @@
   flex-direction: column;
   transition: transform .15s ease, box-shadow .15s ease;
 }
-.branch-card:hover {
+.branch-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.branch-card-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Ensure the hover effect still works on the card */
+.branch-card-link:hover .branch-card {
   transform: translateY(-4px);
   box-shadow: 0 10px 24px -8px rgba(0,0,0,.25);
+}
+
+/* Remove the original hover effect since it's now on the link */
+.branch-card:hover {
+  transform: none;
+  box-shadow: 0 6px 18px -6px rgba(0,0,0,.15);
 }
 .branch-card img {
   width: 100%;
@@ -49,9 +67,16 @@
   padding: 0.95rem 1.05rem 1.1rem;
 }
 .branch-card .branch-name {
-  font-weight: 600;
-  font-size: 1.05rem;
-  margin-bottom: .4rem;
+    margin-bottom: .4rem;
+    height: 2.4em; /* Fixed height for exactly 2 lines */
+    line-height: 1.2em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
+    word-wrap: break-word;
+    font-weight: 600;
+    font-size: 1.05rem;
 }
 .branch-card .branch-address {
   font-size: .85rem;
@@ -86,4 +111,129 @@
     max-width: 360px;
     margin: 0 auto;
   }
+}
+
+/* Branch detail page styles */
+.branch-detail .branch-info {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    align-items: start;
+}
+
+.branch-detail .branch-text {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.branch-detail .branch-image {
+    width: 100%;
+    text-align: center;
+}
+
+.branch-detail .branch-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Block 1: Contact Info */
+.branch-contact {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.contact-item {
+    margin-bottom: 15px;
+}
+
+.contact-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Block 2: Opening Hours */
+.branch-hours h3 {
+    margin: 0 0 0 0;
+    color: #333;
+    font-size: 1.2em;
+    font-weight: 750;
+}
+
+.hours-list {
+    margin-bottom: 15px;
+}
+
+.hours-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.95em;
+}
+
+.hours-item.current-day {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.current-status {
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.current-status.status-open {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.current-status.status-closed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.current-status.status-closing {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Block 3: Appointment */
+.branch-appointment {
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+    text-decoration: none;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .branch-detail .branch-info {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .branch-detail .branch-image img {
+        height: 250px;
+    }
 }
