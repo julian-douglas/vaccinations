@@ -72,7 +72,6 @@ class AppointmentBase(SQLModel):
     user_id: int = Field(foreign_key="users.id")
     vaccine_id: int = Field(foreign_key="vaccines.id")
     branch_id: int = Field(foreign_key="branches.id")
-    status: str = Field(default="scheduled")  # scheduled, completed, cancelled
     notes: Optional[str] = [""]
 
 

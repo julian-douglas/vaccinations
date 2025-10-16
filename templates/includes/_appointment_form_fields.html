@@ -1,0 +1,35 @@
+{% comment %}Reusable fields for AppointmentForm. Requires `form` in context.{% endcomment %}
+{% load form_extras %}
+{% if form.non_field_errors %}
+<div class="notification is-danger is-light">
+  {% for err in form.non_field_errors %}{{ err }}<br>{% endfor %}
+</div>
+{% endif %}
+<div class="field">
+  <label class="label">Vaccine</label>
+  <div class="control">
+    {{ form.vaccine|add_class:'select' }}
+  </div>
+  {% if form.vaccine.errors %}<p class="help is-danger">{{ form.vaccine.errors.0 }}</p>{% endif %}
+</div>
+<div class="field">
+  <label class="label">Branch</label>
+  <div class="control">
+    {{ form.branch|add_class:'select' }}
+  </div>
+  {% if form.branch.errors %}<p class="help is-danger">{{ form.branch.errors.0 }}</p>{% endif %}
+</div>
+<div class="field">
+  <label class="label">Date & Time</label>
+  <div class="control">
+    {{ form.datetime|add_class:'input' }}
+  </div>
+  {% if form.datetime.errors %}<p class="help is-danger">{{ form.datetime.errors.0 }}</p>{% endif %}
+</div>
+<div class="field">
+  <label class="label">Notes</label>
+  <div class="control">
+    {{ form.notes|add_class:'textarea' }}
+  </div>
+  {% if form.notes.errors %}<p class="help is-danger">{{ form.notes.errors.0 }}</p>{% endif %}
+</div>

@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Max
+from django.http import JsonResponse, Http404
+from datetime import date
+import json
 from .models import Appointment, Vaccine, Branch, Dose, User
 from .forms import AppointmentForm, CustomUserCreationForm, DoseForm
 from django.contrib.auth.forms import UserCreationForm
@@ -36,17 +39,41 @@ def signup(request):
 
 @login_required
 def appointment_create(request):
+    # allow pre-select branch via query param (?branch=ID)
+    initial = {}
+    branch_id = request.GET.get('branch') if request.method == 'GET' else request.POST.get('branch')
+    if branch_id:
+        try:
+            initial_branch = Branch.objects.get(pk=branch_id)
+            initial['branch'] = initial_branch
+        except Branch.DoesNotExist:
+            pass
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
             appt = form.save(commit=False)
             appt.user = request.user
             appt.save()
-            messages.success(request, 'Appointment created.')
-            return redirect('home')
+            appt.save()
+            messages.success(request, 'Appointment booked!')
+            return redirect('appointment_confirmation', pk=appt.pk)
     else:
-        form = AppointmentForm()
-    return render(request, 'appointment_form.html', {'form': form})
+        form = AppointmentForm(initial=initial)
+    # supply hours for selected branch (initial or from form)
+    branch_obj = initial.get('branch') if initial.get('branch') else None
+    if not branch_obj and 'branch' in request.POST:
+        try:
+            branch_obj = Branch.objects.get(pk=request.POST.get('branch'))
+        except Branch.DoesNotExist:
+            branch_obj = None
+    opening_hours = branch_obj.opening_hours if branch_obj else []
+    opening_hours_json = json.dumps(opening_hours if isinstance(opening_hours, list) else [])
+    return render(request, 'appointment_form.html', {
+        'form': form,
+        'opening_hours': opening_hours,
+        'opening_hours_json': opening_hours_json,
+        'today_str': date.today().isoformat(),
+    })
 
 @login_required
 def appointment_edit(request, pk):
@@ -71,6 +98,16 @@ def appointment_delete(request, pk):
     return render(request, 'appointment_delete_confirm.html', {'appointment': appt})
 
 @login_required
+def appointment_list(request):
+    appts = Appointment.objects.select_related('vaccine','branch').filter(user=request.user).order_by('datetime')
+    return render(request, 'appointment_list.html', {'appointments': appts})
+
+@login_required
+def appointment_confirmation(request, pk):
+    appt = get_object_or_404(Appointment, pk=pk, user=request.user)
+    return render(request, 'appointment_confirmation.html', {'appointment': appt})
+
+@login_required
 def dose_list(request):
     allowed = {
         'date': 'date_administered',
@@ -91,7 +128,14 @@ def dose_list(request):
         'vaccine': f"?sort=vaccine&dir={next_dir('vaccine')}",
         'dose': f"?sort=dose&dir={next_dir('dose')}",
     }
-    return render(request, 'dose_list.html', {'doses': doses, 'sort': sort, 'direction': direction, 'links': links})
+    dose_form = DoseForm(user=request.user)
+    return render(request, 'dose_list.html', {
+        'doses': doses,
+        'sort': sort,
+        'direction': direction,
+        'links': links,
+        'dose_form': dose_form,
+    })
 
 @login_required
 def dose_create(request):
@@ -150,4 +194,24 @@ def branch_list(request):
 
 def branch_detail(request, pk):
     branch = get_object_or_404(Branch, pk=pk)
-    return render(request, 'branch.html', {'branch': branch})
+    inline_form = None
+    if request.user.is_authenticated:
+        inline_form = AppointmentForm(initial={'branch': branch})
+    opening_hours = branch.opening_hours if isinstance(branch.opening_hours, list) else []
+    opening_hours_json = json.dumps(opening_hours)
+    return render(request, 'branch.html', {
+        'branch': branch,
+        'inline_appointment_form': inline_form,
+        'opening_hours': opening_hours,
+        'opening_hours_json': opening_hours_json,
+        'today_str': date.today().isoformat(),
+    })
+
+def branch_hours(request, pk):
+    """Return opening_hours JSON for a branch (public)."""
+    try:
+        branch = Branch.objects.get(pk=pk)
+    except Branch.DoesNotExist:
+        raise Http404
+    data = branch.opening_hours if isinstance(branch.opening_hours, list) else []
+    return JsonResponse({'opening_hours': data})

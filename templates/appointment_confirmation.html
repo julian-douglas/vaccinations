@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Appointment Confirmed{% endblock %}
+{% block content %}
+<div class="columns is-centered">
+  <div class="column is-6">
+    <div class="card">
+      <header class="card-header has-background-primary">
+        <p class="card-header-title has-text-white">Appointment Confirmed</p>
+      </header>
+      <div class="card-content">
+        <div class="content">
+          <p class="has-text-success"><strong>Your appointment has been booked.</strong></p>
+          <ul>
+            <li><strong>Vaccine:</strong> {{ appointment.vaccine.name }}</li>
+            <li><strong>Branch:</strong> {{ appointment.branch.name }}</li>
+            <li><strong>Date & Time:</strong> {{ appointment.datetime|date:'Y-m-d H:i' }}</li>
+            {% if appointment.notes %}<li><strong>Notes:</strong> {{ appointment.notes }}</li>{% endif %}
+          </ul>
+          <div class="buttons mt-4">
+            <a class="button is-primary" href="{% url 'appointment_list' %}">View All Appointments</a>
+            <a class="button is-light" href="{% url 'home' %}">Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

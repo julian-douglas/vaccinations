@@ -1,15 +1,49 @@
 {% extends 'base.html' %}
+{% load form_extras static %}
+{% block extra_css %}
+<style>
+  #dose-modal .modal-card { width: 420px; max-width: 95vw; }
+  @media (max-width: 900px){ #dose-modal .modal-card { width: 95vw; } }
+</style>
+{% endblock %}
 {% block title %}My Doses{% endblock %}
 {% block content %}
 <h1 class="title">My Doses</h1>
-<a class="button is-primary" href="{% url 'dose_add' %}">Add Dose</a>
+<button id="open-dose-modal" class="button is-primary" type="button">Add Dose</button>
+<div id="dose-modal" class="modal">
+  <div class="modal-background" id="dose-modal-bg"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Add Dose</p>
+      <button class="delete" aria-label="close" id="dose-modal-close"></button>
+    </header>
+    <section class="modal-card-body">
+      <form id="dose-modal-form" method="post" action="{% url 'dose_add' %}" novalidate>
+        {% csrf_token %}
+        <div class="field">
+          <label class="label">Vaccine</label>
+          <div class="control">{{ dose_form.vaccine|add_class:'select' }}</div>
+          {% if dose_form.vaccine.errors %}<p class="help is-danger">{{ dose_form.vaccine.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label class="label">Date Administered</label>
+          <div class="control">{{ dose_form.date_administered|add_class:'input' }}</div>
+          {% if dose_form.date_administered.errors %}<p class="help is-danger">{{ dose_form.date_administered.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field is-grouped is-justify-content-space-between">
+          <div class="control"><button class="button is-primary action-btn" type="submit">Save</button></div>
+          <div class="control"><button class="button action-btn" type="button" id="dose-modal-cancel">Cancel</button></div>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
 <table class="table is-fullwidth is-striped mt-4">
   <thead>
     <tr>
       <th><a href="{{ links.date }}">Date{% if sort == 'date' %} {% if direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}</a></th>
       <th><a href="{{ links.vaccine }}">Vaccine{% if sort == 'vaccine' %} {% if direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}</a></th>
       <th><a href="{{ links.dose }}">Dose #{% if sort == 'dose' %} {% if direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}</a></th>
-      <th>Appointment</th>
       <th></th>
     </tr>
   </thead>
@@ -19,12 +53,15 @@
       <td>{{ d.date_administered|date:'Y-m-d' }}</td>
       <td>{{ d.vaccine.name }}</td>
       <td>{{ d.dose_number }}</td>
-      <td>{% if d.appointment %}{{ d.appointment.datetime|date:'Y-m-d H:i' }}{% else %}-{% endif %}</td>
-      <td><a class="button is-small is-danger" href="{% url 'dose_delete' d.pk %}">Delete</a></td>
+  <td><a class="button is-small is-danger js-appt-delete" data-type="dose" data-label="{{ d.vaccine.name }} dose {{ d.dose_number }} on {{ d.date_administered|date:'Y-m-d' }}" href="{% url 'dose_delete' d.pk %}">Delete</a></td>
     </tr>
   {% empty %}
     <tr><td colspan="5">No doses recorded yet.</td></tr>
   {% endfor %}
   </tbody>
 </table>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dose_modal.js' %}"></script>
 {% endblock %}

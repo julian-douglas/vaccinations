@@ -72,7 +72,8 @@
     line-height: 1.2em;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  line-clamp: 2; /* Standard property */
     -webkit-box-orient: vertical;
     word-wrap: break-word;
     font-weight: 600;
@@ -207,6 +208,127 @@
 .branch-appointment {
     text-align: center;
 }
+/* Appointment form enhancements */
+.card form .field { margin-bottom: 1rem; }
+.card form .field:last-child { margin-bottom: 0; }
+.card-header { background-color: #04d1b2 !important; border-bottom: none; }
+.card-header .card-header-title { font-weight: 600; color: #fff !important; background-color: #04d1b2 !important; }
+.card-header .card-header-icon { color: #fff !important; }
+
+.columns.is-centered .column.is-6 { max-width: 650px; }
+.notification.is-danger.is-light { border: 1px solid #f14668; }
+
+/* Appointment time grid */
+/* Appointment time grid */
+.time-grid { 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem; /* increased space between buttons */
+  margin-top: 0.25rem;
+  justify-content: center; /* center row contents */
+  align-items: center;
+  width: 100%;
+}
+/* Uniform sizing: fixed flex-basis & width so all buttons equal even if text width differs */
+.time-grid .time-slot { 
+  flex: 0 1 50px; /* basis determines width; adjust if you need more/less per row */
+  width: 50px; /* fallback for older browsers */
+  text-align: center;
+  justify-content: center; 
+  padding-left: 0; 
+  padding-right: 0; 
+  font-variant-numeric: tabular-nums; /* consistent digit width */
+  /* Fallback spacing if flex gap unsupported */
+  margin: 0.4rem 0.4rem 0 0;
+}
+.time-grid .time-slot.is-selected { 
+  box-shadow: 0 0 0 2px rgba(32,156,238,.4); 
+}
+
+/* Notes textarea height override */
+#id_notes {
+  height: 80px; /* adjust this value as needed */
+  min-height: 80px;
+  resize: vertical; /* allow user to grow if needed */
+}
+
+/* Date grid */
+.date-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  justify-content: center;
+}
+
+/* Unified action button sizing */
+.action-btn {
+  min-width: 140px;
+  padding: 0.75rem 1.1rem;
+  font-weight: 600;
+  justify-content: center;
+  text-align: center;
+}
+.action-btn.is-small {
+  min-width: 120px;
+  padding: 0.55rem 0.9rem;
+}
+.date-grid .date-cell {
+  flex: 0 1 110px;
+  width: 110px;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.8rem;
+}
+.date-grid .date-cell.is-selected {
+  box-shadow: 0 0 0 2px rgba(4,209,178,.5);
+}
+.date-grid .date-cell.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+  text-decoration: line-through;
+}
+
+/* Password requirements checklist */
+.password-requirements {
+  list-style: none;
+  margin: 0.5rem 0 1rem;
+  padding: 0;
+  font-size: 0.85rem;
+  line-height: 1.25rem;
+}
+.password-requirements li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b30000; /* unmet color */
+  transition: color .2s ease;
+}
+.password-requirements li .pw-check-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #ffebee;
+  color: #b30000;
+  border: 1px solid #ffcdd2;
+  transition: all .25s ease;
+}
+.password-requirements li.met {
+  color: #0d6e2e;
+}
+.password-requirements li.met .pw-check-icon {
+  background: #e6f4ea;
+  color: #0d6e2e;
+  border-color: #b7dfc4;
+}
+.password-requirements li .pw-text { flex: 1; }
+
 
 .btn {
     display: inline-block;

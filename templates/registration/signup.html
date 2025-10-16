@@ -1,45 +1,85 @@
 {% extends "base.html" %}
+{% load static %}
+{% load form_extras %}
 {% block title %}Sign Up{% endblock %}
 {% block content %}
-<h1 class="title">Create Account</h1>
-<form method="post" novalidate>
-  {% csrf_token %}
-  <div class="columns">
-    <div class="column">
-      <div class="field">
-        <label class="label">First name</label>
-        {{ form.first_name }}
-        {% for e in form.first_name.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
-      </div>
-      <div class="field">
-        <label class="label">Last name</label>
-        {{ form.last_name }}
-        {% for e in form.last_name.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
-      </div>
-      <div class="field">
-        <label class="label">Username</label>
-        {{ form.username }}
-        {% for e in form.username.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
-      </div>
-    </div>
-    <div class="column">
-      <div class="field">
-        <label class="label">Email</label>
-        {{ form.email }}
-        {% for e in form.email.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
-      </div>
-      <div class="field">
-        <label class="label">Password</label>
-        {{ form.password1 }}
-        {% for e in form.password1.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
-      </div>
-      <div class="field">
-        <label class="label">Confirm Password</label>
-        {{ form.password2 }}
-        {% for e in form.password2.errors %}<p class="help is-danger">{{ e }}</p>{% endfor %}
+<div class="columns is-centered">
+  <div class="column is-7">
+    <div class="card">
+      <header class="card-header has-background-primary">
+        <p class="card-header-title has-text-white">Create Account</p>
+      </header>
+      <div class="card-content">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="notification is-danger is-light">
+            {% for err in form.non_field_errors %}{{ err }}<br>{% endfor %}
+          </div>
+          {% endif %}
+          <div class="columns is-multiline">
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">First name</label>
+                <div class="control">{{ form.first_name|add_class:'input' }}</div>
+                {% if form.first_name.errors %}<p class="help is-danger">{{ form.first_name.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Last name</label>
+                <div class="control">{{ form.last_name|add_class:'input' }}</div>
+                {% if form.last_name.errors %}<p class="help is-danger">{{ form.last_name.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Username</label>
+                <div class="control">{{ form.username|add_class:'input' }}</div>
+                {% if form.username.errors %}<p class="help is-danger">{{ form.username.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Email</label>
+                <div class="control">{{ form.email|add_class:'input' }}</div>
+                {% if form.email.errors %}<p class="help is-danger">{{ form.email.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Password</label>
+                <div class="control">{{ form.password1|add_class:'input' }}</div>
+                {% if form.password1.errors %}<p class="help is-danger">{{ form.password1.errors.0 }}</p>{% endif %}
+                <ul id="password-requirements" class="password-requirements" style="display:none;">
+                  <li data-rule="length"><span class="pw-check-icon">✕</span><span class="pw-text">At least 8 characters</span></li>
+                  <li data-rule="upper"><span class="pw-check-icon">✕</span><span class="pw-text">Contains an uppercase letter (A-Z)</span></li>
+                  <li data-rule="lower"><span class="pw-check-icon">✕</span><span class="pw-text">Contains a lowercase letter (a-z)</span></li>
+                  <li data-rule="number"><span class="pw-check-icon">✕</span><span class="pw-text">Contains a number (0-9)</span></li>
+                  <li data-rule="special"><span class="pw-check-icon">✕</span><span class="pw-text">Contains a special character (!@#$%^&* etc.)</span></li>
+                </ul>
+              </div>
+            </div>
+            <div class="column is-6">
+              <div class="field">
+                <label class="label">Confirm Password</label>
+                <div class="control">{{ form.password2|add_class:'input' }}</div>
+                {% if form.password2.errors %}<p class="help is-danger">{{ form.password2.errors.0 }}</p>{% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="field is-grouped is-justify-content-space-between">
+            <div class="control"><button class="button is-primary" type="submit">Create Account</button></div>
+            <div class="control"><a href="{% url 'login' %}" class="button is-light">Login</a></div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-  <button class="button is-primary">Create Account</button>
-</form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/password_requirements.js' %}"></script>
+<script>window.PasswordRequirements && window.PasswordRequirements.initAll();</script>
 {% endblock %}

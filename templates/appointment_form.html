@@ -1,10 +1,63 @@
 {% extends 'base.html' %}
-{% block title %}Appointment{% endblock %}
+{% load static form_extras %}
+{% block title %}{% if appointment %}Edit Appointment{% else %}Book Appointment{% endif %}{% endblock %}
 {% block content %}
-<h1 class="title">{% if appointment %}Edit{% else %}Add{% endif %} Appointment</h1>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button class="button is-primary">Save</button>
-  <a class="button" href="{% url 'home' %}">Cancel</a>
-</form>
+<div class="columns is-centered">
+  <div class="column is-6">
+    <div class="card">
+      <header class="card-header has-background-primary">
+        <p class="card-header-title has-text-white">{% if appointment %}Edit Appointment{% else %}Book a New Appointment{% endif %}</p>
+      </header>
+      <div class="card-content">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="notification is-danger is-light">
+            {% for err in form.non_field_errors %}{{ err }}<br>{% endfor %}
+          </div>
+          {% endif %}
+          <div class="field">
+            <label class="label">Vaccine</label>
+            <div class="control">{{ form.vaccine|add_class:'select' }}</div>
+            {% if form.vaccine.errors %}<p class="help is-danger">{{ form.vaccine.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="field">
+            <label class="label">Branch</label>
+            <div class="control">{{ form.branch|add_class:'select' }}</div>
+            {% if form.branch.errors %}<p class="help is-danger">{{ form.branch.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="field">
+            <label class="label">Date</label>
+            <div class="control">
+              <input id="appt-date" class="input" type="date" min="{{ today_str }}">
+              <p id="date-error" class="help is-danger" style="display:none;">Branch closed that day</p>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Time</label>
+            <div id="appt-time-wrapper" class="time-grid">
+              <span id="time-placeholder" class="has-text-grey">Select a date first</span>
+            </div>
+          </div>
+          <input type="hidden" id="id_datetime" name="datetime">
+          <div class="field">
+            <label class="label">Notes</label>
+            <div class="control">{{ form.notes|add_class:'textarea' }}</div>
+            {% if form.notes.errors %}<p class="help is-danger">{{ form.notes.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="field is-grouped is-justify-content-space-between">
+            <div class="control"><button class="button is-primary" type="submit">{% if appointment %}Save Changes{% else %}Book Appointment{% endif %}</button></div>
+            <div class="control"><a class="button is-light" href="{% url 'home' %}">Cancel</a></div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script id="opening-hours-data" type="application/json">{{ opening_hours_json|default:'[]'|safe }}</script>
+<script src="{% static 'js/appointment_form.js' %}"></script>
+<script>AppointmentUI.init();</script>
 {% endblock %}

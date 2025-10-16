@@ -13,8 +13,8 @@ class BranchAdmin(admin.ModelAdmin):
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ("user", "vaccine", "branch", "datetime", "status")
-    list_filter = ("status", "branch", "vaccine")
+    list_display = ("user", "vaccine", "branch", "datetime")
+    list_filter = ("branch", "vaccine")
     search_fields = ("user__username", "notes")
 
 @admin.register(Dose)

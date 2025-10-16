@@ -7,6 +7,9 @@ class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=True, max_length=30)
     last_name = forms.CharField(required=True, max_length=150)
+    # Override password fields to keep entered text after validation errors
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput(render_value=True))
+    password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput(render_value=True))
 
     class Meta:
         model = User

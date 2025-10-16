@@ -51,7 +51,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Appointment
-        fields = '__all__'
+        exclude = ['created_at']  # status removed; return other fields implicitly
 
 
 class AppointmentCreateSerializer(serializers.ModelSerializer):

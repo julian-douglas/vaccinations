@@ -34,6 +34,5 @@ Content-Type: application/json
   "user_id": 1,
   "vaccine_id": 20,
   "branch_id": 4,
-  "status": "scheduled",
   "notes": "string"
 }
