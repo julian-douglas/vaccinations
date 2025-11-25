@@ -1,40 +1,126 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Home - Vaccinations{% endblock %}
+
 {% block content %}
-<h1 class="title">Dashboard</h1>
 {% if user.is_authenticated %}
-  <h2 class="subtitle">Your Appointments</h2>
-  {% if appointments %}
-    <table class="table is-fullwidth is-striped">
-  <thead><tr><th>Date/Time</th><th>Vaccine</th><th>Branch</th><th></th></tr></thead>
-      <tbody>
-        {% for a in appointments %}
-        <tr>
-          <td>{{ a.datetime|date:'Y-m-d H:i' }}</td>
-          <td>{{ a.vaccine.name }}</td>
-          <td>{{ a.branch.name }}</td>
-          <td>
-            <a class="button is-small" href="{% url 'appointment_edit' a.pk %}">Edit</a>
-            <a class="button is-small is-danger js-appt-delete" href="{% url 'appointment_delete' a.pk %}" data-label="{{ a.vaccine.name }} @ {{ a.branch.name }} on {{ a.datetime|date:'Y-m-d H:i' }}">Delete</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No appointments yet. <a href="{% url 'appointment_add' %}">Book one</a>.</p>
-  {% endif %}
+  <!-- Hero Section with Rotating Images -->
+  <div class="hero-section">
+    <div class="hero-slideshow">
+      <div class="hero-slide active" style="background-image: url('{% static 'img/dna.jpg' %}');"></div>
+      <div class="hero-slide" style="background-image: url('{% static 'img/happy person.jpg' %}');"></div>
+      <div class="hero-slide" style="background-image: url('{% static 'img/vaccination.jpg' %}');"></div>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">Hello, {{ user.first_name|default:user.username }}!</h1>
+      <p class="hero-subtitle">Manage your vaccinations and book new appointments</p>
+      <div class="hero-buttons">
+        <a href="{% url 'appointment_add' %}" class="button is-primary is-large">Book Appointment</a>
+        <a href="{% url 'branch_list' %}" class="button is-light is-large">Find a Location</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Benefits Section -->
+  <section class="benefits-section">
+    <h2 class="section-title">Why Choose Us</h2>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">📅</div>
+        <h3>Easy Online Booking</h3>
+        <p>Schedule your appointment anytime, anywhere with our simple booking system</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🏥</div>
+        <h3>Multiple Locations</h3>
+        <p>Find a convenient clinic near you from our network of trusted branches</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">💉</div>
+        <h3>Wide Range of Vaccines</h3>
+        <p>Access to all essential vaccinations in one place</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">⏰</div>
+        <h3>Flexible Times</h3>
+        <p>Choose appointment times that fit your schedule, including evenings and weekends</p>
+      </div>
+    </div>
+  </section>
 {% else %}
-  <p>Please <a href="{% url 'login' %}">login</a> to manage appointments.</p>
+  <!-- Hero Section with Rotating Images -->
+  <div class="hero-section">
+    <div class="hero-slideshow">
+      <div class="hero-slide active" style="background-image: url('{% static 'img/dna.jpg' %}');"></div>
+      <div class="hero-slide" style="background-image: url('{% static 'img/happy person.jpg' %}');"></div>
+      <div class="hero-slide" style="background-image: url('{% static 'img/vaccination.jpg' %}');"></div>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">Protect Yourself & Your Loved Ones</h1>
+      <p class="hero-subtitle">Book your vaccination appointment online in minutes</p>
+      <div class="hero-buttons">
+        <a href="{% url 'signup' %}" class="button is-primary is-large">Get Started</a>
+        <a href="{% url 'branch_list' %}" class="button is-light is-large">Find a Location</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Benefits Section -->
+  <section class="benefits-section">
+    <h2 class="section-title">Why Choose Us</h2>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">📅</div>
+        <h3>Easy Online Booking</h3>
+        <p>Schedule your appointment anytime, anywhere with our simple booking system</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🏥</div>
+        <h3>Multiple Locations</h3>
+        <p>Find a convenient clinic near you from our network of trusted branches</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">💉</div>
+        <h3>Wide Range of Vaccines</h3>
+        <p>Access to all essential vaccinations in one place</p>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">⏰</div>
+        <h3>Flexible Times</h3>
+        <p>Choose appointment times that fit your schedule, including evenings and weekends</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <h2>Ready to Get Protected?</h2>
+    <p>Find a convenient location near you and book your appointment today</p>
+    <div class="hero-buttons">
+      <a href="{% url 'branch_list' %}" class="button is-primary is-large">Find a Branch</a>
+      <a href="{% url 'signup' %}" class="button is-info is-large">Sign Up Now</a>
+    </div>
+  </section>
 {% endif %}
+{% endblock %}
 
-<!-- <h2 class="subtitle">Vaccines (sample)</h2>
-<ul>
-  {% for v in vaccines %}<li>{{ v.name }} - £{{ v.price_per_dose }}</li>{% endfor %}
-</ul>
-
-<h2 class="subtitle">Branches (sample)</h2>
-<ul>
-  {% for b in branches %}<li>{{ b.name }} ({{ b.postcode }})</li>{% endfor %}
-</ul> -->
+{% block extra_js %}
+<script>
+// Hero slideshow
+(function() {
+  const slides = document.querySelectorAll('.hero-slide');
+  let currentSlide = 0;
+  
+  function nextSlide() {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add('active');
+  }
+  
+  // Change slide every 5 seconds
+  setInterval(nextSlide, 5000);
+})();
+</script>
 {% endblock %}

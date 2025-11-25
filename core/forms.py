@@ -30,6 +30,36 @@ class CustomUserCreationForm(UserCreationForm):
             user.save()
         return user
 
+class UserProfileForm(forms.ModelForm):
+    email = forms.EmailField(required=True)
+    
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email", "username"]
+        help_texts = {
+            'username': 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make fields look better with Bulma
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'input'
+    
+    def clean_email(self):
+        email = self.cleaned_data['email'].lower()
+        # Check if email is taken by another user
+        if User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Email already in use by another account.")
+        return email
+    
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        # Check if username is taken by another user
+        if User.objects.filter(username=username).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Username already in use.")
+        return username
+
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment

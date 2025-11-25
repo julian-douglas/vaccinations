@@ -11,7 +11,7 @@ seed_vaccines = [
         "notes": "Typical schedule: 0,1,6 months."
     },
     {
-        "name": "DTaP (Diphtheria, Tetanus, acellular Pertussis)",
+        "name": "DTP (Diphtheria, Tetanus, Polio)",
         "primary_series_doses": 5,
         "booster_interval_years": 10.0,
         "price_per_dose": 28.0,
@@ -281,7 +281,7 @@ seed_vaccines = [
         "notes": "Accelerated schedules exist."
     },
     {
-        "name": "Typhus (Rickettsial) – Placeholder",
+        "name": "Typhus (Rickettsial)",
         "primary_series_doses": 1,
         "price_per_dose": 0.0,
         "administration_route": "IM",
@@ -354,7 +354,7 @@ seed_vaccines = [
     },
     # --- STD / Bloodborne (some already above) ---
     {
-        "name": "Hepatitis C – (No vaccine; placeholder)",
+        "name": "Hepatitis C",
         "primary_series_doses": None,
         "price_per_dose": 0.0,
         "administration_route": "IM",

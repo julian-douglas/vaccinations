@@ -2,51 +2,178 @@
 {% load static %}
 {% load form_extras %}
 {% block title %}Sign Up{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-container {
+  margin: -1.5rem -1.5rem;
+  min-height: calc(100vh - 52px);
+  display: flex;
+}
+
+.auth-image-side {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.85) 0%, rgba(4, 209, 178, 0.75) 100%),
+              url('{% static "img/happy person.jpg" %}');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 3rem;
+  text-align: center;
+}
+
+.auth-image-side h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.auth-image-side p {
+  font-size: 1.2rem;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+}
+
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: #f8f9fa;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 550px;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.auth-card-header {
+  background: linear-gradient(135deg, #007bff 0%, #04d1b2 100%);
+  padding: 2rem;
+  text-align: center;
+}
+
+.auth-card-header h2 {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.auth-card-body {
+  padding: 2.5rem 2rem;
+}
+
+.auth-card .field {
+  margin-bottom: 1.25rem;
+}
+
+.auth-card .button {
+  min-width: 140px;
+  font-weight: 600;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-grid-full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 968px) {
+  .auth-container {
+    flex-direction: column;
+  }
+  
+  .auth-image-side {
+    min-height: 250px;
+  }
+  
+  .auth-image-side h1 {
+    font-size: 2rem;
+  }
+  
+  .auth-form-side {
+    padding: 2rem 1rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="columns is-centered">
-  <div class="column is-7">
-    <div class="card">
-      <header class="card-header has-background-primary">
-        <p class="card-header-title has-text-white">Create Account</p>
-      </header>
-      <div class="card-content">
-        <form method="post" novalidate>
-          {% csrf_token %}
-          {% if form.non_field_errors %}
-          <div class="notification is-danger is-light">
-            {% for err in form.non_field_errors %}{{ err }}<br>{% endfor %}
-          </div>
-          {% endif %}
-          <div class="columns is-multiline">
-            <div class="column is-6">
+<div class="auth-container">
+  <div class="auth-image-side">
+    <h1>Join Us Today!</h1>
+    <p>Create your account and start protecting yourself and your loved ones</p>
+  </div>
+  
+  <div class="auth-form-side">
+    <div class="auth-form-wrapper">
+      <div class="auth-card">
+        <div class="auth-card-header">
+          <h2>Create Account</h2>
+        </div>
+        <div class="auth-card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="notification is-danger is-light">
+              {% for err in form.non_field_errors %}{{ err }}<br>{% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="form-grid">
               <div class="field">
                 <label class="label">First name</label>
                 <div class="control">{{ form.first_name|add_class:'input' }}</div>
                 {% if form.first_name.errors %}<p class="help is-danger">{{ form.first_name.errors.0 }}</p>{% endif %}
               </div>
-            </div>
-            <div class="column is-6">
+              
               <div class="field">
                 <label class="label">Last name</label>
                 <div class="control">{{ form.last_name|add_class:'input' }}</div>
                 {% if form.last_name.errors %}<p class="help is-danger">{{ form.last_name.errors.0 }}</p>{% endif %}
               </div>
-            </div>
-            <div class="column is-6">
+              
               <div class="field">
                 <label class="label">Username</label>
                 <div class="control">{{ form.username|add_class:'input' }}</div>
                 {% if form.username.errors %}<p class="help is-danger">{{ form.username.errors.0 }}</p>{% endif %}
               </div>
-            </div>
-            <div class="column is-6">
+              
               <div class="field">
                 <label class="label">Email</label>
                 <div class="control">{{ form.email|add_class:'input' }}</div>
                 {% if form.email.errors %}<p class="help is-danger">{{ form.email.errors.0 }}</p>{% endif %}
               </div>
-            </div>
-            <div class="column is-6">
+              
               <div class="field">
                 <label class="label">Password</label>
                 <div class="control">{{ form.password1|add_class:'input' }}</div>
@@ -59,20 +186,22 @@
                   <li data-rule="special"><span class="pw-check-icon">✕</span><span class="pw-text">Contains a special character (!@#$%^&* etc.)</span></li>
                 </ul>
               </div>
-            </div>
-            <div class="column is-6">
+              
               <div class="field">
                 <label class="label">Confirm Password</label>
                 <div class="control">{{ form.password2|add_class:'input' }}</div>
                 {% if form.password2.errors %}<p class="help is-danger">{{ form.password2.errors.0 }}</p>{% endif %}
               </div>
             </div>
+            
+            <div class="field" style="margin-top: 1.5rem;">
+              <button class="button is-primary is-fullwidth is-medium" type="submit">Create Account</button>
+            </div>
+          </form>
+          <div class="auth-footer">
+            <p>Already have an account? <a href="{% url 'login' %}" class="has-text-weight-semibold">Log In</a></p>
           </div>
-          <div class="field is-grouped is-justify-content-space-between">
-            <div class="control"><button class="button is-primary" type="submit">Create Account</button></div>
-            <div class="control"><a href="{% url 'login' %}" class="button is-light">Login</a></div>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>

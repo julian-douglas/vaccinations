@@ -1,63 +1,394 @@
 {% extends 'base.html' %}
 {% load static form_extras %}
 {% block title %}{% if appointment %}Edit Appointment{% else %}Book Appointment{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+.wizard-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.wizard-progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.wizard-progress::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 50px;
+  right: 50px;
+  height: 3px;
+  background: #e9ecef;
+  z-index: 0;
+}
+
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.wizard-step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.wizard-step.active .wizard-step-circle {
+  background: linear-gradient(135deg, #007bff 0%, #04d1b2 100%);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.wizard-step.completed .wizard-step-circle {
+  background: #28a745;
+  color: white;
+}
+
+.wizard-step-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-align: center;
+}
+
+.wizard-step.active .wizard-step-label {
+  color: #007bff;
+}
+
+.wizard-step.completed .wizard-step-label {
+  color: #28a745;
+}
+
+.wizard-content {
+  background: white;
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+}
+
+.step-content {
+  display: none;
+}
+
+.step-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.step-subtitle {
+  color: #6c757d;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.vaccine-card {
+  min-height: auto;
+  padding: 1.25rem 1rem;
+}
+
+.vaccine-info-btn {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.selection-card {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  background: white;
+}
+
+.selection-card:hover {
+  border-color: #007bff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.selection-card.selected {
+  border-color: #007bff;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(4, 209, 178, 0.05) 100%);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.branch-selection-card {
+  min-height: 280px;
+}
+
+.branch-selection-card .branch-card-image {
+  object-fit: cover;
+}
+
+.wizard-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: #e9ecef;
+  border-color: #e9ecef;
+  color: #6c757d;
+}
+
+.wizard-actions button.is-primary:disabled {
+  background-color: #e9ecef;
+  border-color: #e9ecef;
+  color: #6c757d;
+}
+
+.branch-status {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.branch-status .open-until {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.selection-card-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.selection-card-info {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.selection-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.wizard-actions button {
+  min-width: 120px;
+}
+
+@media (max-width: 768px) {
+  .wizard-progress {
+    margin-bottom: 2rem;
+  }
+  
+  .wizard-step-label {
+    font-size: 0.75rem;
+  }
+  
+  .wizard-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .selection-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="columns is-centered">
-  <div class="column is-6">
-    <div class="card">
-      <header class="card-header has-background-primary">
-        <p class="card-header-title has-text-white">{% if appointment %}Edit Appointment{% else %}Book a New Appointment{% endif %}</p>
-      </header>
-      <div class="card-content">
-        <form method="post" novalidate>
-          {% csrf_token %}
-          {% if form.non_field_errors %}
-          <div class="notification is-danger is-light">
-            {% for err in form.non_field_errors %}{{ err }}<br>{% endfor %}
-          </div>
-          {% endif %}
-          <div class="field">
-            <label class="label">Vaccine</label>
-            <div class="control">{{ form.vaccine|add_class:'select' }}</div>
-            {% if form.vaccine.errors %}<p class="help is-danger">{{ form.vaccine.errors.0 }}</p>{% endif %}
-          </div>
-          <div class="field">
-            <label class="label">Branch</label>
-            <div class="control">{{ form.branch|add_class:'select' }}</div>
-            {% if form.branch.errors %}<p class="help is-danger">{{ form.branch.errors.0 }}</p>{% endif %}
-          </div>
-          <div class="field">
-            <label class="label">Date</label>
-            <div class="control">
-              <input id="appt-date" class="input" type="date" min="{{ today_str }}">
-              <p id="date-error" class="help is-danger" style="display:none;">Branch closed that day</p>
-            </div>
-          </div>
-          <div class="field">
-            <label class="label">Time</label>
-            <div id="appt-time-wrapper" class="time-grid">
-              <span id="time-placeholder" class="has-text-grey">Select a date first</span>
-            </div>
-          </div>
-          <input type="hidden" id="id_datetime" name="datetime">
-          <div class="field">
-            <label class="label">Notes</label>
-            <div class="control">{{ form.notes|add_class:'textarea' }}</div>
-            {% if form.notes.errors %}<p class="help is-danger">{{ form.notes.errors.0 }}</p>{% endif %}
-          </div>
-          <div class="field is-grouped is-justify-content-space-between">
-            <div class="control"><button class="button is-primary" type="submit">{% if appointment %}Save Changes{% else %}Book Appointment{% endif %}</button></div>
-            <div class="control"><a class="button is-light" href="{% url 'home' %}">Cancel</a></div>
-          </div>
-        </form>
-      </div>
+<div class="wizard-container">
+  <!-- Progress Indicator -->
+  <div class="wizard-progress">
+    <div class="wizard-step active" data-step="1">
+      <div class="wizard-step-circle">1</div>
+      <div class="wizard-step-label">Choose Vaccine</div>
     </div>
+    <div class="wizard-step" data-step="2">
+      <div class="wizard-step-circle">2</div>
+      <div class="wizard-step-label">Select Branch</div>
+    </div>
+    <div class="wizard-step" data-step="3">
+      <div class="wizard-step-circle">3</div>
+      <div class="wizard-step-label">Pick Date & Time</div>
+    </div>
+    <div class="wizard-step" data-step="4">
+      <div class="wizard-step-circle">4</div>
+      <div class="wizard-step-label">Confirm</div>
+    </div>
+  </div>
+
+  <!-- Wizard Content -->
+  <div class="wizard-content">
+    <form id="wizard-form" method="post" novalidate>
+      {% csrf_token %}
+      
+      <!-- Step 1: Choose Vaccine -->
+      <div class="step-content active" data-step="1">
+        <h2 class="step-title">Which vaccine do you need?</h2>
+        <p class="step-subtitle">Select the vaccination you'd like to receive</p>
+        <div class="selection-grid" id="vaccine-grid">
+          <!-- Will be populated by JavaScript -->
+        </div>
+        <input type="hidden" id="selected-vaccine" name="vaccine" value="{% if appointment %}{{ appointment.vaccine.id }}{% endif %}">
+      </div>
+
+      <!-- Step 2: Select Branch -->
+      <div class="step-content" data-step="2">
+        <h2 class="step-title">Where would you like to go?</h2>
+        <p class="step-subtitle">Choose a convenient location</p>
+        <div class="selection-grid" id="branch-grid">
+          <!-- Will be populated by JavaScript -->
+        </div>
+        <input type="hidden" id="selected-branch" name="branch" value="{% if appointment %}{{ appointment.branch.id }}{% endif %}">
+      </div>
+
+      <!-- Step 3: Date & Time -->
+      <div class="step-content" data-step="3">
+        <h2 class="step-title">When works best for you?</h2>
+        <p class="step-subtitle">Pick your preferred date and time</p>
+        <div class="field">
+          <label class="label">Date</label>
+          <div class="control">
+            <input id="appt-date" class="input" type="date" min="{{ today_str }}">
+            <p id="date-error" class="help is-danger" style="display:none;">Branch closed that day</p>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Time</label>
+          <div id="appt-time-wrapper" class="time-grid">
+            <span id="time-placeholder" class="has-text-grey">Select a date first</span>
+          </div>
+        </div>
+        <input type="hidden" id="id_datetime" name="datetime">
+      </div>
+
+      <!-- Step 4: Confirm -->
+      <div class="step-content" data-step="4">
+        <h2 class="step-title">Review your appointment</h2>
+        <p class="step-subtitle">Check the details before confirming</p>
+        <div style="background: #f8f9fa; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+          <div style="margin-bottom: 1rem;">
+            <strong>Vaccine:</strong> <span id="confirm-vaccine"></span>
+            <button type="button" id="confirm-vaccine-info-btn" class="button is-small is-light" style="margin-left: 0.5rem; display: none;" onclick="showConfirmVaccineInfo()">
+              ⓘ Side Effects
+            </button>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <strong>Branch:</strong> <span id="confirm-branch"></span>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <strong>Date & Time:</strong> <span id="confirm-datetime"></span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Additional Notes (Optional)</label>
+          <div class="control">{{ form.notes|add_class:'textarea' }}</div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="wizard-actions">
+        <button type="button" class="button is-light" id="prev-btn" style="display: none;">
+          ← Previous
+        </button>
+        <div></div>
+        <button type="button" class="button is-primary" id="next-btn">
+          Next →
+        </button>
+        <button type="submit" class="button is-primary" id="submit-btn" style="display: none;">
+          {% if appointment %}Save Changes{% else %}Book Appointment{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Vaccine Info Modal -->
+<div class="modal" id="vaccine-info-modal">
+  <div class="modal-background" onclick="closeVaccineModal()"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title"><span id="modal-vaccine-name"></span> - Side Effects</p>
+      <button class="delete" aria-label="close" onclick="closeVaccineModal()"></button>
+    </header>
+    <section class="modal-card-body">
+      <p style="margin-bottom: 1rem;">Common side effects may include:</p>
+      <ul id="modal-side-effects-list" style="list-style: disc; margin-left: 1.5rem;">
+      </ul>
+      <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+        <em>If you experience severe or persistent side effects, please consult your healthcare provider.</em>
+      </p>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button" onclick="closeVaccineModal()">Close</button>
+    </footer>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script id="opening-hours-data" type="application/json">{{ opening_hours_json|default:'[]'|safe }}</script>
+<script id="opening-hours-data" type="application/json">[]</script>
+<script id="vaccines-data" type="application/json">{{ vaccines_json|safe }}</script>
+<script id="branches-data" type="application/json">{{ branches_json|safe }}</script>
 <script src="{% static 'js/appointment_form.js' %}"></script>
-<script>AppointmentUI.init();</script>
+<script src="{% static 'js/wizard.js' %}"></script>
+<script>
+  // Initialize wizard first
+  WizardForm.init();
+  // Don't init AppointmentUI until a branch is selected (wizard will do it)
+  
+  // Listen for time slot selections to enable Next button
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('time-slot')) {
+      setTimeout(() => {
+        const nextBtn = document.getElementById('next-btn');
+        const datetime = document.getElementById('id_datetime').value;
+        if (nextBtn && datetime) {
+          nextBtn.disabled = false;
+        }
+      }, 100);
+    }
+  });
+</script>
 {% endblock %}

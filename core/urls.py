@@ -18,6 +18,7 @@ urlpatterns = [
     # Web interface URLs
     path('', views.home, name='home'),
     path('signup/', views.signup, name='signup'),
+    path('profile/', views.profile, name='profile'),
     path('appointments/add/', views.appointment_create, name='appointment_add'),
     path('appointments/<int:pk>/edit/', views.appointment_edit, name='appointment_edit'),
     path('appointments/<int:pk>/delete/', views.appointment_delete, name='appointment_delete'),
@@ -26,6 +27,8 @@ urlpatterns = [
     path('doses/', views.dose_list, name='dose_list'),
     path('doses/add/', views.dose_create, name='dose_add'),
     path('doses/<int:pk>/delete/', views.dose_delete, name='dose_delete'),
+    path('doses/<int:pk>/link-appointments/', views.dose_link_appointments, name='dose_link_appointments'),
+    path('doses/<int:pk>/link-appointment/', views.dose_link_appointment, name='dose_link_appointment'),
     path('branches/', views.branch_list, name='branch_list'),
     path('branches/<int:pk>/', views.branch_detail, name='branch_detail'), 
     path('branches/<int:pk>/hours/', views.branch_hours, name='branch_hours'),

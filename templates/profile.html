@@ -1,0 +1,504 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile - Vaccinations{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-section {
+  margin-bottom: 3rem;
+}
+
+.profile-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.profile-header h1 {
+  color: white;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.profile-header p {
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+#link-appointment-list .box {
+  transition: all 0.2s ease;
+}
+
+#link-appointment-list .box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dose-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+}
+
+.section-card h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #363636;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f5f5f5;
+}
+
+.form-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f5f5f5;
+}
+
+.history-table {
+  margin-top: 1rem;
+}
+
+.sort-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sort-header:hover {
+  color: #3273dc;
+}
+
+.sort-icon {
+  margin-left: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #7a7a7a;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.field label {
+  font-weight: 600;
+  color: #363636;
+}
+
+.help {
+  font-size: 0.875rem;
+  color: #7a7a7a;
+}
+
+.info-display {
+  display: block;
+}
+
+.info-display.hidden {
+  display: none;
+}
+
+.edit-form {
+  display: none;
+}
+
+.edit-form.active {
+  display: block;
+}
+
+.info-row {
+  display: flex;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #7a7a7a;
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: #363636;
+  font-size: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+  <h1>My Profile</h1>
+  <p>Manage your account information and view your vaccination history</p>
+</div>
+
+<!-- Personal Information Section -->
+<div class="section-card">
+  <h2>Personal Information</h2>
+  
+  <!-- Read-only view -->
+  <div id="info-display" class="info-display">
+    <div class="info-row">
+      <div class="info-label">First Name</div>
+      <div class="info-value">{{ user.first_name|default:"Not set" }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Last Name</div>
+      <div class="info-value">{{ user.last_name|default:"Not set" }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Email</div>
+      <div class="info-value">{{ user.email|default:"Not set" }}</div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">Username</div>
+      <div class="info-value">{{ user.username }}</div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="button" class="button is-primary" id="edit-profile-btn">
+        <span class="icon"><i>✏️</i></span>
+        <span>Edit Information</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Edit form (hidden by default) -->
+  <div id="edit-form" class="edit-form">
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="columns">
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">{{ form.first_name.label }}</label>
+            <div class="control">
+              {{ form.first_name }}
+            </div>
+            {% if form.first_name.errors %}
+              <p class="help is-danger">{{ form.first_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">{{ form.last_name.label }}</label>
+            <div class="control">
+              {{ form.last_name }}
+            </div>
+            {% if form.last_name.errors %}
+              <p class="help is-danger">{{ form.last_name.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="columns">
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">{{ form.email.label }}</label>
+            <div class="control">
+              {{ form.email }}
+            </div>
+            {% if form.email.errors %}
+              <p class="help is-danger">{{ form.email.errors.0 }}</p>
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="column is-half">
+          <div class="field">
+            <label class="label">{{ form.username.label }}</label>
+            <div class="control">
+              {{ form.username }}
+            </div>
+            {% if form.username.errors %}
+              <p class="help is-danger">{{ form.username.errors.0 }}</p>
+            {% elif form.username.help_text %}
+              <p class="help">{{ form.username.help_text }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <div class="field is-grouped">
+          <div class="control">
+            <button type="submit" class="button is-primary">
+              <span class="icon">
+                <i>💾</i>
+              </span>
+              <span>Save Changes</span>
+            </button>
+          </div>
+          <div class="control">
+            <button type="button" class="button is-light" id="cancel-edit-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Vaccination History Section -->
+<div class="section-card">
+  <h2>Vaccination History</h2>
+  
+  {% if doses %}
+    <div class="history-table">
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>
+              <a href="{{ links.date }}" class="sort-header">
+                Date
+                {% if sort == 'date' %}
+                  <span class="sort-icon">{% if direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                {% endif %}
+              </a>
+            </th>
+            <th>
+              <a href="{{ links.vaccine }}" class="sort-header">
+                Vaccine
+                {% if sort == 'vaccine' %}
+                  <span class="sort-icon">{% if direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                {% endif %}
+              </a>
+            </th>
+            <th>
+              <a href="{{ links.dose }}" class="sort-header">
+                Dose #
+                {% if sort == 'dose' %}
+                  <span class="sort-icon">{% if direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                {% endif %}
+              </a>
+            </th>
+            <th>Linked Appointment</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dose in doses %}
+          <tr>
+            <td>{{ dose.date_administered }}</td>
+            <td>
+              <strong>{{ dose.vaccine.name }}</strong>
+            </td>
+            <td>
+              <span class="tag is-info">Dose {{ dose.dose_number }}</span>
+            </td>
+            <td>
+              {% if dose.appointment %}
+                {{ dose.appointment.branch.name }} - {{ dose.appointment.datetime|date:'Y-m-d H:i' }}
+              {% else %}
+                <span class="has-text-grey-light">Not linked</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="dose-actions">
+                {% if not dose.appointment %}
+                <button class="button is-small is-info is-light js-link-appointment"
+                        data-dose-id="{{ dose.pk }}"
+                        data-vaccine-id="{{ dose.vaccine.id }}"
+                        data-dose-date="{{ dose.date_administered|date:'Y-m-d' }}">
+                  <span class="icon"><i>🔗</i></span>
+                  <span>Link</span>
+                </button>
+                {% endif %}
+                <a href="{% url 'dose_delete' dose.pk %}" 
+                   class="button is-small is-danger is-light js-appt-delete"
+                   data-type="dose"
+                   data-label="{{ dose.vaccine.name }} dose {{ dose.dose_number }} on {{ dose.date_administered|date:'Y-m-d' }}">
+                  <span class="icon"><i>🗑️</i></span>
+                  <span>Delete</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="has-text-centered" style="margin-top: 1.5rem;">
+      <a href="{% url 'dose_add' %}" class="button is-link is-light">
+        <span class="icon">
+          <i>➕</i>
+        </span>
+        <span>Add Manual Dose Record</span>
+      </a>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">💉</div>
+      <p class="is-size-5"><strong>No vaccination history yet</strong></p>
+      <p>Your vaccination records will appear here after your appointments</p>
+      <a href="{% url 'dose_add' %}" class="button is-link is-light" style="margin-top: 1rem;">
+        <span class="icon">
+          <i>➕</i>
+        </span>
+        <span>Add Manual Dose Record</span>
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Link Appointment Modal -->
+<div class="modal" id="link-appointment-modal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">Link Appointment to Dose</p>
+      <button class="delete" aria-label="close" id="close-link-modal"></button>
+    </header>
+    <section class="modal-card-body">
+      <div id="link-appointment-list"></div>
+      <div id="link-no-appointments" class="has-text-centered" style="display: none; padding: 2rem;">
+        <p class="has-text-grey">No matching past appointments found</p>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+      <button class="button" id="cancel-link-modal">Cancel</button>
+    </footer>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Handle edit profile button
+  document.getElementById('edit-profile-btn').addEventListener('click', function() {
+    document.getElementById('info-display').classList.add('hidden');
+    document.getElementById('edit-form').classList.add('active');
+  });
+  
+  // Handle cancel button
+  document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+    document.getElementById('edit-form').classList.remove('active');
+    document.getElementById('info-display').classList.remove('hidden');
+  });
+  
+  // If there are form errors, show the edit form automatically
+  {% if form.errors %}
+    document.getElementById('info-display').classList.add('hidden');
+    document.getElementById('edit-form').classList.add('active');
+  {% endif %}
+
+  // Link appointment functionality
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.js-link-appointment')) {
+      const btn = e.target.closest('.js-link-appointment');
+      const doseId = btn.dataset.doseId;
+      const vaccineId = btn.dataset.vaccineId;
+      const doseDate = btn.dataset.doseDate;
+      
+      openLinkModal(doseId, vaccineId, doseDate);
+    }
+  });
+
+  function openLinkModal(doseId, vaccineId, doseDate) {
+    const modal = document.getElementById('link-appointment-modal');
+    const listContainer = document.getElementById('link-appointment-list');
+    const noAppointments = document.getElementById('link-no-appointments');
+    
+    // Fetch past appointments for this vaccine
+    fetch(`/doses/${doseId}/link-appointments/?vaccine_id=${vaccineId}&dose_date=${doseDate}`)
+      .then(response => response.json())
+      .then(data => {
+        listContainer.innerHTML = '';
+        
+        if (data.appointments.length === 0) {
+          listContainer.style.display = 'none';
+          noAppointments.style.display = 'block';
+        } else {
+          listContainer.style.display = 'block';
+          noAppointments.style.display = 'none';
+          
+          data.appointments.forEach(appt => {
+            const card = document.createElement('div');
+            card.className = 'box';
+            card.style.cursor = 'pointer';
+            card.style.marginBottom = '1rem';
+            card.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>${appt.vaccine_name}</strong><br>
+                  <small>${appt.branch_name} • ${appt.datetime_display}</small>
+                </div>
+                <button class="button is-primary is-small">Link</button>
+              </div>
+            `;
+            
+            card.addEventListener('click', () => linkAppointmentToDose(doseId, appt.id));
+            listContainer.appendChild(card);
+          });
+        }
+        
+        modal.classList.add('is-active');
+      });
+  }
+
+  function linkAppointmentToDose(doseId, appointmentId) {
+    const formData = new FormData();
+    formData.append('appointment_id', appointmentId);
+    
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(`/doses/${doseId}/link-appointment/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Close modal and reload page
+        closeLinkModal();
+        location.reload();
+      } else {
+        alert(data.error || 'Failed to link appointment');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while linking the appointment');
+    });
+  }
+
+  function closeLinkModal() {
+    document.getElementById('link-appointment-modal').classList.remove('is-active');
+  }
+
+  document.getElementById('close-link-modal').addEventListener('click', closeLinkModal);
+  document.getElementById('cancel-link-modal').addEventListener('click', closeLinkModal);
+  
+  // Close modal on background click
+  document.querySelector('#link-appointment-modal .modal-background').addEventListener('click', closeLinkModal);
+</script>
+{% endblock %}
+

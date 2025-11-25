@@ -170,48 +170,9 @@
             <!-- Block 3: Appointment Link -->
             <div class="branch-appointment">
                 {% if user.is_authenticated %}
-                <button id="toggle-inline-appointment" class="button is-primary" type="button">
+                <a href="{% url 'appointment_add' %}?branch={{ branch.id }}" class="button is-primary">
                     Book Appointment
-                </button>
-                <div id="appointment-backdrop" class="appointment-backdrop"></div>
-                                <div id="inline-appointment-wrapper" class="appointment-overlay" style="display:none;">
-                                    <div class="card">
-                                        <header class="card-header has-background-primary">
-                                            <p class="card-header-title has-text-white">Book at {{ branch.name }}</p>
-                                            <button class="card-header-icon" type="button" aria-label="close" id="close-inline-appointment">✕</button>
-                                        </header>
-                                        <div class="card-content">
-                                            <form id="inline-appointment-form" method="post" action="{% url 'appointment_add' %}" novalidate>
-                                                {% csrf_token %}
-                                                <input type="hidden" name="branch" value="{{ branch.id }}">
-                                                <div class="field">
-                                                    <label class="label">Vaccine</label>
-                                                    <div class="control">{{ inline_appointment_form.vaccine|add_class:'select' }}</div>
-                                                </div>
-                                                <div class="field">
-                                                    <label class="label">Date</label>
-                                                    <div class="control">
-                                                        <input id="inline-appt-date" class="input" type="date" min="{{ today_str }}">
-                                                        <p id="inline-date-error" class="help is-danger" style="display:none;">Branch closed that day</p>
-                                                    </div>
-                                                </div>
-                                                <div class="field">
-                                                    <label class="label">Time</label>
-                                                    <div id="inline-appt-time-wrapper" class="time-grid"><span id="inline-time-placeholder" class="has-text-grey">Select a date first</span></div>
-                                                </div>
-                                                <input type="hidden" id="inline-id_datetime" name="datetime">
-                                                <div class="field">
-                                                    <label class="label">Notes</label>
-                                                    <div class="control">{{ inline_appointment_form.notes|add_class:'textarea' }}</div>
-                                                </div>
-                                                <div class="field is-grouped is-justify-content-space-between">
-                                                    <div class="control"><button class="button is-primary action-btn" type="submit">Book</button></div>
-                                                    <div class="control"><button class="button is-light action-btn" type="button" id="cancel-inline-appointment">Cancel</button></div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
+                </a>
                 {% else %}
                 <a href="{% url 'login' %}?next={% url 'branch_detail' branch.id %}" class="button is-primary">Log in to book</a>
                 {% endif %}
@@ -233,43 +194,4 @@
 </div>
 {% endblock %}
         {% block extra_js %}
-    <script id="inline-opening-hours-data" type="application/json">{{ opening_hours_json|safe }}</script>
-    <script>
-    (function(){
-            console.log('[Branch] inline appointment init');
-            const btn=document.getElementById('toggle-inline-appointment');
-            const wrapper=document.getElementById('inline-appointment-wrapper');
-            const closeBtn=document.getElementById('close-inline-appointment');
-            const cancelBtn=document.getElementById('cancel-inline-appointment');
-            if(!btn||!wrapper){return;}
-            const hide=()=>{wrapper.style.display='none';};
-            const show=()=>{wrapper.style.display='block';};
-            const backdrop=document.getElementById('appointment-backdrop');
-            function showAll(){show();if(backdrop){backdrop.style.display='block';}}
-            function hideAll(){hide();if(backdrop){backdrop.style.display='none';}}
-            btn.addEventListener('click',()=>{wrapper.style.display==='none'?showAll():hideAll();});
-            closeBtn&&closeBtn.addEventListener('click',hide);
-            cancelBtn&&cancelBtn.addEventListener('click',hideAll);
-            backdrop&&backdrop.addEventListener('click',hideAll);
-    // load shared script if not already
-        if(!window.AppointmentUI){
-            const s=document.createElement('script');
-            s.src="{% static 'js/appointment_form.js' %}";
-            s.onload=initInline;
-            document.body.appendChild(s);
-        } else {
-            initInline();
-        }
-    function initInline(){AppointmentUI.init({
-        hoursDataScriptId:'inline-opening-hours-data',
-        dateInputId:'inline-appt-date',
-        timeWrapperId:'inline-appt-time-wrapper',
-        timePlaceholderId:'inline-time-placeholder',
-        hiddenDatetimeId:'inline-id_datetime',
-        branchSelectId:'', // branch is fixed via hidden field
-        dateErrorId:'inline-date-error',
-        interval:30
-    });}
-})();
-        </script>
         {% endblock %}

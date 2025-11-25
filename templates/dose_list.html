@@ -6,9 +6,9 @@
   @media (max-width: 900px){ #dose-modal .modal-card { width: 95vw; } }
 </style>
 {% endblock %}
-{% block title %}My Doses{% endblock %}
+{% block title %}My History{% endblock %}
 {% block content %}
-<h1 class="title">My Doses</h1>
+<h1 class="title">My History</h1>
 <button id="open-dose-modal" class="button is-primary" type="button">Add Dose</button>
 <div id="dose-modal" class="modal">
   <div class="modal-background" id="dose-modal-bg"></div>
@@ -53,7 +53,15 @@
       <td>{{ d.date_administered|date:'Y-m-d' }}</td>
       <td>{{ d.vaccine.name }}</td>
       <td>{{ d.dose_number }}</td>
-  <td><a class="button is-small is-danger js-appt-delete" data-type="dose" data-label="{{ d.vaccine.name }} dose {{ d.dose_number }} on {{ d.date_administered|date:'Y-m-d' }}" href="{% url 'dose_delete' d.pk %}">Delete</a></td>
+      <td>
+        <a class="button is-small is-danger is-light js-appt-delete" 
+           data-type="dose" 
+           data-label="{{ d.vaccine.name }} dose {{ d.dose_number }} on {{ d.date_administered|date:'Y-m-d' }}" 
+           href="{% url 'dose_delete' d.pk %}">
+          <span class="icon"><i>🗑️</i></span>
+          <span>Delete</span>
+        </a>
+      </td>
     </tr>
   {% empty %}
     <tr><td colspan="5">No doses recorded yet.</td></tr>

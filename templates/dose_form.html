@@ -1,10 +1,433 @@
 {% extends 'base.html' %}
-{% block title %}Add Dose{% endblock %}
+{% load static %}
+{% block title %}Add Vaccination Record{% endblock %}
+
+{% block extra_css %}
+<style>
+.wizard-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.wizard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.wizard-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #363636;
+  margin-bottom: 0.5rem;
+}
+
+.wizard-header p {
+  color: #7a7a7a;
+  font-size: 1.1rem;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e9ecef;
+  z-index: 0;
+}
+
+.progress-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #e9ecef;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #7a7a7a;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-circle {
+  border-color: #3273dc;
+  background: #3273dc;
+  color: white;
+}
+
+.progress-step.completed .step-circle {
+  border-color: #48c774;
+  background: #48c774;
+  color: white;
+}
+
+.step-label {
+  font-size: 0.875rem;
+  color: #7a7a7a;
+  font-weight: 500;
+}
+
+.progress-step.active .step-label {
+  color: #3273dc;
+  font-weight: 600;
+}
+
+.wizard-step {
+  display: none;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.wizard-step.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  min-height: 400px;
+}
+
+.step-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #363636;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.selection-card {
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  background: white;
+}
+
+.selection-card:hover {
+  border-color: #3273dc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(50, 115, 220, 0.15);
+}
+
+.selection-card.selected {
+  border-color: #3273dc;
+  background: #f0f7ff;
+  box-shadow: 0 4px 12px rgba(50, 115, 220, 0.2);
+}
+
+.selection-card-title {
+  font-weight: 600;
+  color: #363636;
+  margin-bottom: 0.5rem;
+}
+
+.selection-card-info {
+  font-size: 0.875rem;
+  color: #7a7a7a;
+}
+
+.appointment-card {
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.appointment-card:hover {
+  border-color: #3273dc;
+  background: #f9fafb;
+}
+
+.appointment-card.selected {
+  border-color: #3273dc;
+  background: #f0f7ff;
+}
+
+.appointment-card-header {
+  font-weight: 600;
+  color: #363636;
+  margin-bottom: 0.25rem;
+}
+
+.appointment-card-detail {
+  font-size: 0.875rem;
+  color: #7a7a7a;
+}
+
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f5f5f5;
+}
+
+.field label {
+  font-weight: 600;
+  color: #363636;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.field input[type="date"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.field input[type="date"]:focus {
+  outline: none;
+  border-color: #3273dc;
+}
+
+.option-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+
+.option-btn {
+  padding: 0.75rem 2rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.option-btn:hover {
+  border-color: #3273dc;
+}
+
+.option-btn.active {
+  border-color: #3273dc;
+  background: #3273dc;
+  color: white;
+}
+
+.option-section {
+  display: none;
+}
+
+.option-section.active {
+  display: block;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.none-option {
+  text-align: center;
+  padding: 2rem;
+  color: #7a7a7a;
+  font-style: italic;
+}
+
+.confirmation-box {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.confirmation-item {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.confirmation-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.confirmation-label {
+  font-weight: 600;
+  color: #7a7a7a;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.confirmation-value {
+  font-size: 1.125rem;
+  color: #363636;
+  font-weight: 500;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<h1 class="title">Add Dose</h1>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button class="button is-primary">Save</button>
-  <a class="button" href="{% url 'dose_list' %}">Cancel</a>
-</form>
+<div class="wizard-container">
+  <div class="wizard-header">
+    <h1>Add Vaccination Record</h1>
+    <p>Record a vaccination you've already received</p>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="progress-steps">
+    <div class="progress-step active" data-step="1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Appointment</div>
+    </div>
+    <div class="progress-step" data-step="2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Vaccine</div>
+    </div>
+    <div class="progress-step" data-step="3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Date</div>
+    </div>
+    <div class="progress-step" data-step="4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Confirm</div>
+    </div>
+  </div>
+
+  <form method="post" id="dose-wizard-form">
+    {% csrf_token %}
+    
+    <!-- Hidden form fields -->
+    <input type="hidden" name="vaccine" id="selected-vaccine">
+    <input type="hidden" name="date_administered" id="selected-date">
+    <input type="hidden" name="appointment" id="selected-appointment">
+
+    <!-- Step 1: Link to Appointment (Optional) -->
+    <div class="wizard-step active" data-step="1">
+      <div class="step-content">
+        <h2 class="step-title">Link to an appointment? (Optional)</h2>
+        
+        <div class="option-toggle">
+          <button type="button" class="option-btn active" data-option="link">Link to Appointment</button>
+          <button type="button" class="option-btn" data-option="manual">Manual Entry</button>
+        </div>
+
+        <div class="option-section active" id="link-section-step1">
+          <div id="appointment-list-step1"></div>
+        </div>
+
+        <div class="option-section" id="manual-section">
+          <div class="none-option">
+            <p>Manually enter vaccine and date information</p>
+          </div>
+        </div>
+
+        <div class="wizard-actions">
+          <a href="{% url 'profile' %}" class="button is-light">Cancel</a>
+          <button type="button" class="button is-primary" id="step1-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Select Vaccine -->
+    <div class="wizard-step" data-step="2">
+      <div class="step-content">
+        <h2 class="step-title">Which vaccine did you receive?</h2>
+        <div class="selection-grid" id="vaccine-grid"></div>
+        <div class="wizard-actions">
+          <button type="button" class="button is-light" id="step2-back">Back</button>
+          <button type="button" class="button is-primary" id="step2-next" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Select Date -->
+    <div class="wizard-step" data-step="3">
+      <div class="step-content">
+        <h2 class="step-title">When did you receive it?</h2>
+        <div style="max-width: 400px; margin: 0 auto;">
+          <div class="field">
+            <label>Date Administered</label>
+            <input type="date" id="date-input" max="{{ today }}">
+          </div>
+        </div>
+        <div class="wizard-actions">
+          <button type="button" class="button is-light" id="step3-back">Back</button>
+          <button type="button" class="button is-primary" id="step3-next" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Confirmation -->
+    <div class="wizard-step" data-step="4">
+      <div class="step-content">
+        <h2 class="step-title">Confirm Your Record</h2>
+        
+        <div class="confirmation-box">
+          <div class="confirmation-item">
+            <div class="confirmation-label">Vaccine</div>
+            <div class="confirmation-value" id="confirm-vaccine"></div>
+          </div>
+          <div class="confirmation-item">
+            <div class="confirmation-label">Date Administered</div>
+            <div class="confirmation-value" id="confirm-date"></div>
+          </div>
+          <div class="confirmation-item">
+            <div class="confirmation-label">Linked Appointment</div>
+            <div class="confirmation-value" id="confirm-appointment">Not linked</div>
+          </div>
+        </div>
+
+        <div class="wizard-actions">
+          <button type="button" class="button is-light" id="step4-back">Back</button>
+          <button type="submit" class="button is-primary">
+            <span class="icon"><i>✓</i></span>
+            <span>Save Record</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Data for wizard -->
+<script id="vaccines-data" type="application/json">{{ vaccines_json|safe }}</script>
+<script id="appointments-data" type="application/json">{{ appointments_json|safe }}</script>
+<script>
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('date-input').setAttribute('max', today);
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dose_wizard.js' %}?v=3.0"></script>
 {% endblock %}

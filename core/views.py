@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Max
 from django.http import JsonResponse, Http404
+from django.utils import timezone
 from datetime import date
 import json
 from .models import Appointment, Vaccine, Branch, Dose, User
-from .forms import AppointmentForm, CustomUserCreationForm, DoseForm
+from .forms import AppointmentForm, CustomUserCreationForm, DoseForm, UserProfileForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
 
@@ -68,10 +69,32 @@ def appointment_create(request):
             branch_obj = None
     opening_hours = branch_obj.opening_hours if branch_obj else []
     opening_hours_json = json.dumps(opening_hours if isinstance(opening_hours, list) else [])
+    
+    # Prepare vaccines and branches data for wizard
+    vaccines = Vaccine.objects.all().order_by('name')
+    vaccines_json = json.dumps([{
+        'id': v.id,
+        'name': v.name,
+        'price': str(v.price_per_dose),
+        'side_effects': v.side_effects if isinstance(v.side_effects, list) else []
+    } for v in vaccines])
+    
+    branches = Branch.objects.all().order_by('name')
+    branches_json = json.dumps([{
+        'id': b.id,
+        'name': b.name,
+        'postcode': b.postcode,
+        'image_url': b.image_url or '',
+        'status': b.status_info() or {'text': 'Hours vary', 'class': 'status-open'},
+        'opening_hours': b.opening_hours if isinstance(b.opening_hours, list) else []
+    } for b in branches])
+    
     return render(request, 'appointment_form.html', {
         'form': form,
         'opening_hours': opening_hours,
         'opening_hours_json': opening_hours_json,
+        'vaccines_json': vaccines_json,
+        'branches_json': branches_json,
         'today_str': date.today().isoformat(),
     })
 
@@ -86,7 +109,39 @@ def appointment_edit(request, pk):
             return redirect('home')
     else:
         form = AppointmentForm(instance=appt)
-    return render(request, 'appointment_form.html', {'form': form, 'appointment': appt})
+    
+    # Prepare vaccines and branches data for wizard (same as create)
+    vaccines = Vaccine.objects.all().order_by('name')
+    vaccines_json = json.dumps([{
+        'id': v.id,
+        'name': v.name,
+        'price': str(v.price_per_dose),
+        'side_effects': v.side_effects if isinstance(v.side_effects, list) else []
+    } for v in vaccines])
+    
+    branches = Branch.objects.all().order_by('name')
+    branches_json = json.dumps([{
+        'id': b.id,
+        'name': b.name,
+        'postcode': b.postcode,
+        'image_url': b.image_url or '',
+        'status': b.status_info() or {'text': 'Hours vary', 'class': 'status-open'},
+        'opening_hours': b.opening_hours if isinstance(b.opening_hours, list) else []
+    } for b in branches])
+    
+    # Get opening hours for the appointment's branch
+    opening_hours = appt.branch.opening_hours if isinstance(appt.branch.opening_hours, list) else []
+    opening_hours_json = json.dumps(opening_hours)
+    
+    return render(request, 'appointment_form.html', {
+        'form': form,
+        'appointment': appt,
+        'opening_hours': opening_hours,
+        'opening_hours_json': opening_hours_json,
+        'vaccines_json': vaccines_json,
+        'branches_json': branches_json,
+        'today_str': date.today().isoformat(),
+    })
 
 @login_required
 def appointment_delete(request, pk):
@@ -94,13 +149,33 @@ def appointment_delete(request, pk):
     if request.method == 'POST':
         appt.delete()
         messages.info(request, 'Appointment deleted.')
-        return redirect('home')
+        # Redirect to the referring page or default to appointments list
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'appointments' in referer:
+            return redirect('appointment_list')
+        else:
+            return redirect('home')
     return render(request, 'appointment_delete_confirm.html', {'appointment': appt})
 
 @login_required
 def appointment_list(request):
-    appts = Appointment.objects.select_related('vaccine','branch').filter(user=request.user).order_by('datetime')
-    return render(request, 'appointment_list.html', {'appointments': appts})
+    from django.utils import timezone
+    now = timezone.now()
+    
+    upcoming = Appointment.objects.select_related('vaccine','branch').filter(
+        user=request.user,
+        datetime__gte=now
+    ).order_by('datetime')
+    
+    past = Appointment.objects.select_related('vaccine','branch').filter(
+        user=request.user,
+        datetime__lt=now
+    ).order_by('-datetime')
+    
+    return render(request, 'appointment_list.html', {
+        'upcoming_appointments': upcoming,
+        'past_appointments': past,
+    })
 
 @login_required
 def appointment_confirmation(request, pk):
@@ -139,6 +214,8 @@ def dose_list(request):
 
 @login_required
 def dose_create(request):
+    from django.utils import timezone
+    
     if request.method == 'POST':
         form = DoseForm(request.POST, user=request.user)
         if form.is_valid():
@@ -149,10 +226,38 @@ def dose_create(request):
             dose.dose_number = last + 1
             dose.save()
             messages.success(request, f'Dose #{dose.dose_number} recorded.')
-            return redirect('dose_list')
+            return redirect('profile')
     else:
         form = DoseForm(user=request.user)
-    return render(request, 'dose_form.html', {'form': form})
+    
+    # Prepare vaccine and appointment data for the wizard
+    vaccines = Vaccine.objects.all().order_by('name')
+    vaccines_json = json.dumps([{
+        'id': v.id,
+        'name': v.name,
+        'price': str(v.price_per_dose),
+    } for v in vaccines])
+    
+    # Only show past appointments for linking
+    now = timezone.now()
+    past_appointments = request.user.appointments.select_related('vaccine', 'branch').filter(
+        datetime__lt=now
+    ).order_by('-datetime')
+    
+    appointments_json = json.dumps([{
+        'id': a.id,
+        'vaccine_id': a.vaccine.id,
+        'vaccine_name': a.vaccine.name,
+        'branch_name': a.branch.name,
+        'datetime': a.datetime.isoformat(),
+        'datetime_display': a.datetime.strftime('%Y-%m-%d %H:%M'),
+    } for a in past_appointments])
+    
+    return render(request, 'dose_form.html', {
+        'form': form,
+        'vaccines_json': vaccines_json,
+        'appointments_json': appointments_json,
+    })
 
 @login_required
 def dose_delete(request, pk):
@@ -160,7 +265,12 @@ def dose_delete(request, pk):
     if request.method == 'POST':
         dose.delete()
         messages.info(request, 'Dose deleted.')
-        return redirect('dose_list')
+        # Redirect to the referring page or default to profile
+        referer = request.META.get('HTTP_REFERER', '')
+        if 'profile' in referer:
+            return redirect('profile')
+        else:
+            return redirect('dose_list')
     return render(request, 'dose_delete_confirm.html', {'dose': dose})
 
 def branch_list(request):
@@ -215,3 +325,100 @@ def branch_hours(request, pk):
         raise Http404
     data = branch.opening_hours if isinstance(branch.opening_hours, list) else []
     return JsonResponse({'opening_hours': data})
+
+@login_required
+def profile(request):
+    """User profile page with personal info editing and vaccination history"""
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=request.user)
+    
+    # Get vaccination history (doses)
+    allowed_sort = {
+        'date': 'date_administered',
+        'vaccine': 'vaccine__name',
+        'dose': 'dose_number',
+    }
+    sort = request.GET.get('sort', 'date')
+    direction = request.GET.get('dir', 'desc')
+    field = allowed_sort.get(sort, 'date_administered')
+    order = ('-' if direction == 'desc' else '') + field
+    doses = Dose.objects.select_related('vaccine', 'appointment').filter(user=request.user).order_by(order)
+    
+    def next_dir(col):
+        if sort == col and direction == 'asc':
+            return 'desc'
+        return 'asc'
+    
+    sort_links = {
+        'date': f"?sort=date&dir={next_dir('date')}",
+        'vaccine': f"?sort=vaccine&dir={next_dir('vaccine')}",
+        'dose': f"?sort=dose&dir={next_dir('dose')}",
+    }
+    
+    return render(request, 'profile.html', {
+        'form': form,
+        'doses': doses,
+        'sort': sort,
+        'direction': direction,
+        'links': sort_links,
+    })
+
+@login_required
+def dose_link_appointments(request, pk):
+    """Get available appointments that can be linked to a dose"""
+    dose = get_object_or_404(Dose, pk=pk, user=request.user)
+    
+    vaccine_id = request.GET.get('vaccine_id')
+    dose_date = request.GET.get('dose_date')
+    
+    # Get past appointments for the same vaccine that aren't already linked to a dose
+    appointments = Appointment.objects.filter(
+        user=request.user,
+        vaccine_id=vaccine_id,
+        datetime__lt=timezone.now()
+    ).exclude(
+        doses__isnull=False  # Exclude appointments already linked to any dose
+    ).select_related('vaccine', 'branch')
+    
+    # Serialize appointments
+    appointments_data = [{
+        'id': appt.id,
+        'vaccine_name': appt.vaccine.name,
+        'branch_name': appt.branch.name,
+        'datetime_display': appt.datetime.strftime('%Y-%m-%d %H:%M'),
+    } for appt in appointments]
+    
+    return JsonResponse({'appointments': appointments_data})
+
+@login_required
+def dose_link_appointment(request, pk):
+    """Link an appointment to a dose"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    
+    dose = get_object_or_404(Dose, pk=pk, user=request.user)
+    appointment_id = request.POST.get('appointment_id')
+    
+    if not appointment_id:
+        return JsonResponse({'error': 'Appointment ID required'}, status=400)
+    
+    try:
+        appointment = Appointment.objects.get(pk=appointment_id, user=request.user)
+        
+        # Check if appointment is already linked to another dose
+        if appointment.doses.exists():
+            return JsonResponse({'error': 'This appointment is already linked to another dose'}, status=400)
+        
+        # Link the appointment
+        dose.appointment = appointment
+        dose.save()
+        
+        return JsonResponse({'success': True})
+    except Appointment.DoesNotExist:
+        return JsonResponse({'error': 'Appointment not found'}, status=404)

@@ -1,40 +1,205 @@
 {% extends 'base.html' %}
 {% block title %}My Appointments{% endblock %}
+
+{% block extra_css %}
+<style>
+.appointments-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.appointments-header h1 {
+  color: white;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.appointments-header p {
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+}
+
+.section-card h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #363636;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f5f5f5;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #7a7a7a;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.appointment-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.badge-upcoming {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge-past {
+  background: #f5f5f5;
+  color: #7a7a7a;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="columns is-centered">
-  <div class="column is-8">
-    <h1 class="title is-4">My Appointments</h1>
-    {% if appointments %}
-    <table class="table is-fullwidth is-striped">
-      <thead>
-        <tr>
-          <th>Date & Time</th>
-          <th>Vaccine</th>
-          <th>Branch</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in appointments %}
-        <tr>
-          <td>{{ a.datetime|date:'Y-m-d H:i' }}</td>
-          <td>{{ a.vaccine.name }}</td>
-          <td><a href="{% url 'branch_detail' a.branch.pk %}">{{ a.branch.name }}</a></td>
-          <td>
-            <a class="button is-small is-light" href="{% url 'appointment_edit' a.pk %}">Edit</a>
-            <a class="button is-small is-danger is-light js-appt-delete" href="{% url 'appointment_delete' a.pk %}" data-label="{{ a.vaccine.name }} @ {{ a.branch.name }} on {{ a.datetime|date:'Y-m-d H:i' }}">Delete</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-      <p class="has-text-grey">You have no appointments booked.</p>
-    {% endif %}
-    <div class="mt-4">
-      <a class="button is-primary" href="{% url 'appointment_add' %}">Book Another Appointment</a>
-      <a class="button is-light" href="{% url 'home' %}">Home</a>
+<div class="appointments-header">
+  <h1>My Appointments</h1>
+  <p>View and manage your vaccination appointments</p>
+</div>
+
+<!-- Upcoming Appointments -->
+<div class="section-card">
+  <h2>📅 Upcoming Appointments</h2>
+  
+  {% if upcoming_appointments %}
+    <div class="table-container">
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Vaccine</th>
+            <th>Branch</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in upcoming_appointments %}
+          <tr>
+            <td>
+              <strong>{{ a.datetime|date:'D, d M Y' }}</strong><br>
+              <span class="has-text-grey-light">{{ a.datetime|date:'H:i' }}</span>
+            </td>
+            <td>
+              <strong>{{ a.vaccine.name }}</strong>
+            </td>
+            <td>
+              <a href="{% url 'branch_detail' a.branch.pk %}">{{ a.branch.name }}</a>
+            </td>
+            <td>
+              <div class="buttons">
+                <a class="button is-small is-info is-light" href="{% url 'appointment_edit' a.pk %}">
+                  <span class="icon"><i>✏️</i></span>
+                  <span>Edit</span>
+                </a>
+                <a class="button is-small is-danger is-light js-appt-delete" 
+                   href="{% url 'appointment_delete' a.pk %}" 
+                   data-label="{{ a.vaccine.name }} @ {{ a.branch.name }} on {{ a.datetime|date:'Y-m-d H:i' }}">
+                  <span class="icon"><i>🗑️</i></span>
+                  <span>Delete</span>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">📅</div>
+      <p class="is-size-5"><strong>No upcoming appointments</strong></p>
+      <p>Book your next vaccination appointment</p>
+      <a href="{% url 'appointment_add' %}" class="button is-primary is-light" style="margin-top: 1rem;">
+        <span class="icon"><i>➕</i></span>
+        <span>Book Appointment</span>
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Past Appointments -->
+<div class="section-card">
+  <h2>🕒 Past Appointments</h2>
+  
+  {% if past_appointments %}
+    <div class="table-container">
+      <table class="table is-fullwidth is-striped is-hoverable">
+        <thead>
+          <tr>
+            <th>Date & Time</th>
+            <th>Vaccine</th>
+            <th>Branch</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in past_appointments %}
+          <tr>
+            <td>
+              <strong>{{ a.datetime|date:'D, d M Y' }}</strong><br>
+              <span class="has-text-grey-light">{{ a.datetime|date:'H:i' }}</span>
+            </td>
+            <td>
+              <strong>{{ a.vaccine.name }}</strong>
+            </td>
+            <td>
+              <a href="{% url 'branch_detail' a.branch.pk %}">{{ a.branch.name }}</a>
+            </td>
+            <td>
+              {% if a.doses.exists %}
+                <span class="tag is-success">Recorded</span>
+              {% else %}
+                <span class="tag is-warning">Not Recorded</span>
+              {% endif %}
+            </td>
+            <td>
+              <a class="button is-small is-danger is-light js-appt-delete" 
+                 href="{% url 'appointment_delete' a.pk %}" 
+                 data-label="{{ a.vaccine.name }} @ {{ a.branch.name }} on {{ a.datetime|date:'Y-m-d H:i' }}">
+                <span class="icon"><i>🗑️</i></span>
+                <span>Delete</span>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🕒</div>
+      <p class="is-size-5"><strong>No past appointments</strong></p>
+      <p>Your completed appointments will appear here</p>
+    </div>
+  {% endif %}
+</div>
+
+<div class="has-text-centered" style="margin-top: 2rem;">
+  <a class="button is-primary" href="{% url 'appointment_add' %}">
+    <span class="icon"><i>➕</i></span>
+    <span>Book New Appointment</span>
+  </a>
+  <a class="button is-light" href="{% url 'home' %}">Back to Home</a>
 </div>
 {% endblock %}

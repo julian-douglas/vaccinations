@@ -251,7 +251,7 @@ class Appointment(models.Model):
 class Dose(models.Model):
     vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='doses')
-    appointment = models.ForeignKey(Appointment, on_delete=models.SET_NULL, null=True, blank=True)
+    appointment = models.ForeignKey(Appointment, on_delete=models.SET_NULL, null=True, blank=True, related_name='doses')
     date_administered = models.DateField()
     dose_number = models.PositiveSmallIntegerField()
 
